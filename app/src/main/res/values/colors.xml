@@ -13,4 +13,10 @@
     <color name="grey_3">#F3F3F3</color>
     <color name="light_gray">#FAFAFA</color>
     <color name="darker_gray">#8F8F8F</color>
+
+    <color name="colorPrimaryDark">#69d296</color>
+    <color name="colorAccent">#69d296</color>
+    <color name="colorwhite">#ffffff</color>
+    <color name="colorGrey">#696969</color>
+
 </resources>

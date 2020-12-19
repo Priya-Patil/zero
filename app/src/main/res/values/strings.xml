@@ -2,4 +2,16 @@
     <string name="app_name">zero</string>
     <string name="username">User Name</string>
     <string name="pass">Password</string>
+    <string name="confirmpass">Confirm Password</string>
+    <string name="firstname">First Name</string>
+    <string name="lasttname">Last Name</string>
+    <string name="mobile">Mobile</string>
+    <string name="emial">Email</string>
+    <string name="Sponsorby">Sponsor by</string>
+    <string name="autocode">Auto Code</string>
+    <string name="TypeManual">Type Manual</string>
+    <string name="Register">Register</string>
+    <string name="login">Login</string>
+    <string name="loginto">Already registered! Login here!</string>
+    <string name="regto">Register here!</string>
 </resources>
