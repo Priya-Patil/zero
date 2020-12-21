@@ -148,29 +148,46 @@
                                     android:textColor="@color/black">
 
                                 </EditText>
-                                <EditText
-                                    android:id="@+id/et_pass"
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/text_input_layout"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/fontStyle5"
-                                    android:drawableLeft="@drawable/ic_baseline_lock_24"
-                                    android:drawablePadding="10dp"
-                                    android:hint="@string/pass"
-                                    android:inputType="textPassword"
-                                    android:textColor="@color/black">
+                                    app:passwordToggleEnabled="true">
+                                    <EditText
+                                        android:id="@+id/et_pass"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/fontStyle5"
+                                        android:drawablePadding="10dp"
+                                        android:hint="@string/pass"
+                                        android:inputType="textPassword"
+                                        android:textColor="@color/black"
+                                        android:drawableLeft="@drawable/ic_baseline_lock_24"
+                                        android:drawableStart="@drawable/ic_baseline_lock_24">
 
-                                </EditText>
+                                    </EditText>
+                                </com.google.android.material.textfield.TextInputLayout>
 
-                                <EditText
-                                    android:id="@+id/et_conpass"
+                                <com.google.android.material.textfield.TextInputLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/fontStyle5"
-                                    android:drawableLeft="@drawable/ic_baseline_lock_24"
-                                    android:drawablePadding="10dp"
-                                    android:hint="@string/confirmpass"
-                                    android:inputType="textPassword"
-                                    android:textColor="@color/black"/>
+                                    app:passwordToggleEnabled="true">
+                                    <EditText
+                                        android:id="@+id/et_conpass"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/fontStyle5"
+                                        android:drawablePadding="10dp"
+                                        android:hint="@string/confirmpass"
+                                        android:inputType="textPassword"
+                                        android:textColor="@color/black"
+                                        android:drawableLeft="@drawable/ic_baseline_lock_24"
+                                        android:drawableStart="@drawable/ic_baseline_lock_24">
+
+                                    </EditText>
+                                </com.google.android.material.textfield.TextInputLayout>
+
 
                                 <RelativeLayout
                                     android:layout_width="match_parent"

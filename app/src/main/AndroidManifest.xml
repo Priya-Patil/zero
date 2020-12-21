@@ -14,18 +14,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".home.HomeActivity"></activity>
-        <activity android:name=".reg.RegActivity">
+        <activity android:name=".about.AboutActivity">
 
         </activity>
-        <activity android:name=".MainActivity"></activity>
-        <activity android:name=".splash.SplashActivity">
+        <activity android:name=".home.HomeActivity" />
+        <activity android:name=".tac.TACActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".reg.RegActivity">
+
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".splash.SplashActivity"></activity>
 
         <meta-data
             android:name="preloaded_fonts"
