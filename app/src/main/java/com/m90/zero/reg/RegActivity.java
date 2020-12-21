@@ -168,8 +168,11 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                     public void onResponse(Call<RegResponce> call, Response<RegResponce> response) {
 
                         RegResponce regResponce = response.body();
+                        Log.e("onResponse: ", " " + regResponce.message.toString());
+                        Log.e("onResponse: ", " " + regResponce.data.toString());
 
-                        if (response.body() != null)
+
+                     /*   if (response.body() != null)
                         {
                             Log.e("onResponse: ", " " + regResponce.message);
 
@@ -184,7 +187,7 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                             Log.e( "onResponse: ", regResponce.toString() );
 
                         }
-
+*/
 
                         progressDialog.dismiss();
                     }
