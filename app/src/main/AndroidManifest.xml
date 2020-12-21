@@ -13,14 +13,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        >
-        <activity android:name=".reg.RegActivity">  <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+        android:usesCleartextTraffic="true">
+        <activity android:name=".home.HomeActivity"></activity>
+        <activity android:name=".reg.RegActivity">
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter></activity>
-        <activity android:name=".MainActivity">
+        </activity>
+        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".splash.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <meta-data

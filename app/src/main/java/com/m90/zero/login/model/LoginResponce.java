@@ -1,9 +1,7 @@
-package com.m90.zero.loging.model;
+package com.m90.zero.login.model;
 
 
 import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
 
 public  class LoginResponce {
 

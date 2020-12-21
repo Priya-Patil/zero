@@ -9,16 +9,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.m90.zero.MainActivity;
 import com.m90.zero.R;
-import com.m90.zero.databinding.ActivityMainBinding;
 import com.m90.zero.databinding.ActivityRegBinding;
-import com.m90.zero.loging.api.LoginApi;
-import com.m90.zero.loging.model.LoginResponce;
 import com.m90.zero.reg.api.RegApi;
 import com.m90.zero.reg.model.CodeResponce;
 import com.m90.zero.reg.model.RegResponce;
@@ -55,9 +50,11 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                 if(binding.chType.isChecked()==true)
                 {
                     binding.etCode.setText("");
+                    binding.btnCode.setVisibility(View.GONE);
                 }
                 else if(binding.chType.isChecked()==false)
                 {
+                    binding.btnCode.setVisibility(View.VISIBLE);
 
                 }
             }

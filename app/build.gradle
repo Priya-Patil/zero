@@ -119,4 +119,18 @@ dependencies {
     implementation files('libs/gpay.aar')
 
 
+    implementation "com.android.support:support-v4:"
+    implementation 'com.squareup.picasso:picasso:2.3.2'
+    implementation 'com.nineoldandroids:library:2.4.0'
+    implementation 'com.daimajia.slider:library:1.1.5@aar'
+
+
+    implementation 'androidx.cardview:cardview:1.0.0'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation 'org.jsoup:jsoup:1.11.2'
+
+
 }

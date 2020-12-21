@@ -12,10 +12,9 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.m90.zero.databinding.ActivityMainBinding;
-import com.m90.zero.loging.api.LoginApi;
-import com.m90.zero.loging.model.LoginResponce;
+import com.m90.zero.login.api.LoginApi;
+import com.m90.zero.login.model.LoginResponce;
 import com.m90.zero.reg.RegActivity;
-import com.m90.zero.reg.api.RegApi;
 import com.m90.zero.retrofit.RetrofitClientInstance;
 import com.m90.zero.utils.Utilities;
 

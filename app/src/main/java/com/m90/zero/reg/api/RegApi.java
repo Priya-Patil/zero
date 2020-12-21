@@ -1,10 +1,8 @@
 package com.m90.zero.reg.api;
 
 
-import com.m90.zero.loging.model.LoginResponce;
 import com.m90.zero.reg.model.CodeResponce;
 import com.m90.zero.reg.model.RegResponce;
-import com.m90.zero.reg.model.RegUserDetailsResponce;
 
 import retrofit2.Call;
 import retrofit2.http.Field;

@@ -1,7 +1,7 @@
-package com.m90.zero.loging.api;
+package com.m90.zero.login.api;
 
 
-import com.m90.zero.loging.model.LoginResponce;
+import com.m90.zero.login.model.LoginResponce;
 
 import retrofit2.Call;
 import retrofit2.http.Field;

@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">zero</string>
-    <string name="username">User Name</string>
+    <string name="app_name">Zeeero</string>
+    <string name="username">Mobile</string>
     <string name="pass">Password</string>
     <string name="confirmpass">Confirm Password</string>
     <string name="firstname">First Name</string>
@@ -14,4 +14,10 @@
     <string name="login">Login</string>
     <string name="loginto">Already registered! Login here!</string>
     <string name="regto">Register here!</string>
+
+    <string name="toprated">Top Rated Products</string>
+    <string name="viewmore">View More</string>
+    <string name="youmaylike">You May Like</string>
+    <string name="recenltyviewed">Recently Viewed</string>
+    <string name="viewall">View All</string>
 </resources>
