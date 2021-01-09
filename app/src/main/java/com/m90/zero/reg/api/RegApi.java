@@ -1,6 +1,7 @@
 package com.m90.zero.reg.api;
 
 
+import com.m90.zero.reg.model.AfterPaymentRegResponce;
 import com.m90.zero.reg.model.CodeResponce;
 import com.m90.zero.reg.model.RegResponce;
 
@@ -9,6 +10,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Url;
 
 public interface RegApi {
 
@@ -30,6 +32,10 @@ public interface RegApi {
 
     );
 
+    @POST()
+    Call<AfterPaymentRegResponce>addUserAfterPayment (
+            @Url String url
+    );
 
     //http://api.eurekatalents.in/api/customer/weaksp
     @GET("customer/weaksp")

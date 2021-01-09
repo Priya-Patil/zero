@@ -7,8 +7,7 @@ public class RetrofitClientInstance {
 
     private static Retrofit retrofit2;
 
-    private static final String BASE_URL = "http://api.eurekatalents.in/api/";
-
+    public static final String BASE_URL = "http://api.eurekatalents.in/api/";
 
     public static Retrofit getRetrofitInstanceServer() {
         if (retrofit2 == null) {

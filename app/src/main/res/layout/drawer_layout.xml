@@ -26,59 +26,49 @@
             android:layout_height="wrap_content">
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="-15dp"
-                android:background="@color/colorPrimary" />
+                android:layout_width="wrap_content"
+                android:layout_height="170dp"
+                android:background="@color/red" />
 
-            <RelativeLayout
+            <LinearLayout
+                android:id="@+id/ll_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_centerVertical="true"
-                android:layout_marginTop="110dp">
+                android:gravity="left"
+                android:layout_marginLeft="5dp"
+                android:orientation="vertical">
 
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/img_profileMale"
-                    android:layout_width="290dp"
-                    android:layout_height="120dp"
-                    android:layout_margin="@dimen/padding_20"
-                    android:layout_centerHorizontal="true"
-                    app:cardElevation="10dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/logo" />
-                </androidx.cardview.widget.CardView>
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/civ_profile_nav"
+                    android:layout_width="120dp"
+                    android:layout_height="90dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/avatar" />
 
                 <TextView
-                    android:id="@+id/tv_profile_name"
+                    android:id="@+id/tv_profile_name_nav"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/img_profileMale"
+                    android:layout_below="@+id/civ_profile_nav"
                     android:layout_marginTop="0dp"
-                    android:text="User Name"
-                    android:textAlignment="center"
+                    android:text="Guest"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textAlignment="center"
+                    android:textStyle="normal" />
 
                 <TextView
-                    android:id="@+id/tv_mobile"
+                    android:id="@+id/tv_mobile_nav"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/tv_profile_name"
-                    android:text="1234567890"
+                    android:layout_below="@+id/tv_profile_name_nav"
                     android:textStyle="bold"
                     android:textAlignment="center"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/white"
                     android:textSize="12sp" />
 
-            </RelativeLayout>
+            </LinearLayout>
 
         </RelativeLayout>
 
@@ -89,7 +79,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/rl_profile"
-            android:layout_marginTop="-60dp"
             android:layout_marginBottom="2dp"
             android:orientation="vertical"
             android:paddingLeft="10dp"
@@ -125,6 +114,63 @@
                     android:layout_toRightOf="@+id/iv_home"
                     android:gravity="center_vertical"
                     android:text="Home"
+                    android:textColor="@color/colorText"
+                    android:textSize="@dimen/nav_drawer_text" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_profile_click"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_profile_click"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_baseline_person_24"
+                    app:tint="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tv_profile_click"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:textStyle="bold"
+                    android:layout_toRightOf="@+id/iv_profile_click"
+                    android:gravity="center_vertical"
+                    android:text="Profile"
+                    android:textColor="@color/colorText"
+                    android:textSize="@dimen/nav_drawer_text" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_notifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/iv_notifications"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_baseline_notifications_24"
+                    app:tint="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tv_notifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:textStyle="bold"
+                    android:layout_toRightOf="@+id/iv_notifications"
+                    android:gravity="center_vertical"
+                    android:text="Notifications"
                     android:textColor="@color/colorText"
                     android:textSize="@dimen/nav_drawer_text" />
 
@@ -217,7 +263,8 @@
             <RelativeLayout
                 android:id="@+id/rl_Orders"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/iv_orders"
@@ -234,7 +281,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/iv_orders"
                     android:gravity="center_vertical"
-                    android:text="Orders"
+                    android:text="My Orders"
                     android:layout_marginLeft="@dimen/padding_10"
                     android:textColor="@color/colorText"
                     android:textSize="@dimen/nav_drawer_text"
@@ -245,12 +292,14 @@
             <RelativeLayout
                 android:id="@+id/rl_login"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_gravity="center_vertical"
+                android:layout_height="match_parent"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/iv_login"
                     android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_height="match_parent"
                     android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_lock_24"
                     app:tint="@color/black" />
@@ -262,6 +311,7 @@
                     android:layout_marginLeft="@dimen/padding_10"
                     android:layout_toRightOf="@+id/iv_login"
                     android:gravity="center_vertical"
+
                     android:text="Login"
                     android:textColor="@color/colorText"
                     android:textSize="@dimen/nav_drawer_text"
@@ -272,7 +322,8 @@
             <RelativeLayout
                 android:id="@+id/rl_reg"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/iv_reg"
@@ -280,8 +331,7 @@
                     android:layout_height="22dp"
                     android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_person_24"
-                    app:tint="@color/black"
-                    />
+                    app:tint="@color/black"/>
 
                 <TextView
                     android:id="@+id/tv_reg"
@@ -297,7 +347,6 @@
 
             </RelativeLayout>
 
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.40dp"
@@ -308,6 +357,31 @@
 
             <TextView
                 android:id="@+id/tv_contactus"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:drawablePadding="15dp"
+                android:gravity="center_vertical"
+                android:text="About Us"
+                android:textColor="@color/colorText"
+                android:textSize="12sp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tv_helpcenter"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:drawablePadding="15dp"
+                android:gravity="center_vertical"
+                android:text="FAQ"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_abtUs"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
                 android:layout_alignParentBottom="true"
@@ -331,18 +405,6 @@
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tv_helpcenter"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:drawablePadding="15dp"
-                android:gravity="center_vertical"
-                android:text="Help Center"
-                android:textColor="@color/colorText"
-                android:textSize="12sp" />
-
-            <TextView
                 android:id="@+id/tv_exit"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
@@ -352,7 +414,8 @@
                 android:gravity="center_vertical"
                 android:text="Logout"
                 android:textColor="@color/colorText"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone"/>
 
             <View
                 android:layout_width="match_parent"
@@ -362,9 +425,8 @@
                 android:layout_marginRight="10dp"
                 android:background="@color/colorView" />
 
-
             <TextView
-                android:id="@+id/tv_abtUs"
+                android:id="@+id/tv_abtfUs"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:layout_alignParentBottom="true"
@@ -377,6 +439,7 @@
 
         </LinearLayout>
         <!--endregion menu-->
+
 
 
     </RelativeLayout>

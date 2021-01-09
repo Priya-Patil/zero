@@ -103,7 +103,7 @@
                                     android:drawableLeft="@drawable/ic_baseline_person_24"
                                     android:drawablePadding="10dp"
                                     android:hint="@string/username"
-                                    android:inputType="text"
+                                    android:inputType="number"
                                     android:maxLength="10"
                                     android:textColor="@color/black">
 
@@ -145,19 +145,33 @@
                                     android:textSize="18sp"
                                     tools:ignore="HardcodedText" />
 
-                                <TextView
-                                    android:id="@+id/btn_reg"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="@color/colorGrey"
-                                    android:text="@string/regto"
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="25dp"
+                                    android:orientation="horizontal"
                                     android:gravity="center"
-                                    android:layout_gravity="center"
-                                    android:textSize="12sp"
-                                    android:layout_marginBottom="@dimen/padding_20"
-                                    />
+                                    android:layout_gravity="center">
 
+                                    <TextView
+                                        android:id="@+id/btn_reg"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/colorGrey"
+                                        android:text="@string/regto"
+                                        android:textSize="12sp"
+                                        />
 
+                                    <TextView
+                                        android:id="@+id/btn_forgotpass"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/colorGrey"
+                                        android:text="@string/Forgotpass"
+                                        android:textSize="12sp"
+                                        android:layout_marginLeft="12dp"
+                                        />
+
+                                </LinearLayout>
 
 
 

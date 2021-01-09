@@ -20,4 +20,28 @@
     <string name="youmaylike">You May Like</string>
     <string name="recenltyviewed">Recently Viewed</string>
     <string name="viewall">View All</string>
+
+    <string name="wallet_balance">Wallet Balance</string>
+    <string name="sponsor_balance">Sponsor Balance</string>
+    <string name="levelwallet">Level Wallet Transaction History</string>
+
+    <string name="faq">FAQ</string>
+    <string name="cart">Cart</string>
+    <string name="search">Search</string>
+    <string name="brands">Brands</string>
+    <string name="Forgotpass">Forgot Password</string>
+    <string name="newPassword">New Password</string>
+    <string name="otp">OTP</string>
+    <string name="Passwordupdated">Password Updated</string>
+    <string name="message2">Your identity has been verified! \n set your new password</string>
+    <string name="message3">Your password has been updated!</string>
+
+    <string-array name="sort">
+        <item> Sort </item>
+        <item> Date </item>
+        <item> From </item>
+        <item> Credit </item>
+        <item> Debit </item>
+        <item> Balance </item>
+    </string-array>
 </resources>

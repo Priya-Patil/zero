@@ -1,4 +1,4 @@
-package com.m90.zero.home.adapter;
+package com.m90.zero.profile.adapter;
 
 import android.app.Activity;
 import android.util.Log;
@@ -12,27 +12,28 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.m90.zero.R;
 import com.m90.zero.home.HomeActivity;
-import com.m90.zero.home.model.HomeModel;
+
+import com.m90.zero.profile.model.DownlineResponse;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class TopRatedProductsAdapter extends RecyclerView.Adapter<TopRatedProductsAdapter.MyViewHolder> {
+public class DownlineAdapter extends RecyclerView.Adapter<DownlineAdapter.MyViewHolder> {
 
-    private static final String TAG = "CartAdapter";
+    private static final String TAG = "DownlineAdapter";
 
     private Activity mContext;
-    ArrayList<HomeModel> list;
+    ArrayList<DownlineResponse> list;
     private  ItemClickListener itemClickListener;
 
-    public TopRatedProductsAdapter(Activity context, ArrayList<HomeModel> list) {
+    public DownlineAdapter(Activity context, ArrayList<DownlineResponse> list) {
         this.list = list;
         mContext = context;
     }
 
-    public TopRatedProductsAdapter(Activity context, ArrayList<HomeModel> list, ItemClickListener itemClickListener){
+    public DownlineAdapter(Activity context, ArrayList<DownlineResponse> list, ItemClickListener itemClickListener){
         mContext = context;
         this.list = list;
         this.itemClickListener=itemClickListener;
@@ -46,7 +47,7 @@ public class TopRatedProductsAdapter extends RecyclerView.Adapter<TopRatedProduc
 
     public  MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_for_category_grid, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_downline, null);
 
         //  prefManager=new PrefManager(mContext);
         return new  MyViewHolder(view);
@@ -55,14 +56,17 @@ public class TopRatedProductsAdapter extends RecyclerView.Adapter<TopRatedProduc
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, final int i) {
-        final HomeModel item = list.get(i);
+        final DownlineResponse item = list.get(i);
 
         Log.e("vlist", list.toString());
-        viewHolder.tv_title.setText(item.getName());
-        viewHolder.tv_desc.setText(item.getDesc());
-        viewHolder.tv_rate.setText(item.getRate());
-        viewHolder.tv_amount.setText(HomeActivity.currency+item.getAmount());
-        viewHolder.img.setBackground(mContext.getResources().getDrawable(item.getImage_drawable()));
+        viewHolder.tv_name.setText(item.name);
+        viewHolder.tv_mobile.setText(item.mobile_number);
+        viewHolder.tv_email.setText(item.email);
+        //viewHolder.iv_imgWallet.setBackground(mContext.getResources().getDrawable(item.avatar));
+        //viewHolder.iv_imgWallet.set(item.avatar);
+
+         Picasso.with(mContext).load("http://api.eurekatalents.in/"+item.avatar).into(viewHolder.iv_imgWallet);
+
     }
 
 
@@ -76,16 +80,15 @@ public class TopRatedProductsAdapter extends RecyclerView.Adapter<TopRatedProduc
         ImageView iv_cart;
         RelativeLayout rl_delete;
         int count = 0;
-        TextView tv_title, tv_desc,tv_rate,tv_amount;
-        ImageView img;
+        TextView tv_name, tv_mobile,tv_email,tv_amount;
+        ImageView iv_imgWallet;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            tv_title = itemView.findViewById(R.id.tv_title);
-            tv_desc = itemView.findViewById(R.id.tv_desc);
-            tv_rate = itemView.findViewById(R.id.tv_rate);
-            tv_amount = itemView.findViewById(R.id.tv_amount);
-            img = itemView.findViewById(R.id.img);
+            tv_name = itemView.findViewById(R.id.tv_name);
+            tv_mobile = itemView.findViewById(R.id.tv_mobile);
+            tv_email = itemView.findViewById(R.id.tv_email);
+            iv_imgWallet = itemView.findViewById(R.id.iv_imgWallet);
 
             itemView.setOnClickListener(this); // bind the listener
         }
@@ -97,7 +100,7 @@ public class TopRatedProductsAdapter extends RecyclerView.Adapter<TopRatedProduc
     }
 
     //region Search Filter (setFilter Code)
-    public void setFilter(ArrayList<HomeModel> newList) {
+    public void setFilter(ArrayList<DownlineResponse> newList) {
         list = new ArrayList<>();
         list.addAll(newList);
         notifyDataSetChanged();

@@ -14,17 +14,23 @@ import android.widget.Toast;
 
 import com.easebuzz.payment.kit.PWECouponsActivity;
 import com.google.gson.Gson;
-import com.m90.zero.MainActivity;
+import com.m90.zero.home.HomeActivity;
+import com.m90.zero.login.LoginActivity;
 import com.m90.zero.R;
 import com.m90.zero.databinding.ActivityRegBinding;
 import com.m90.zero.reg.api.RegApi;
+import com.m90.zero.reg.model.AfterPaymentRegResponce;
 import com.m90.zero.reg.model.CodeResponce;
 import com.m90.zero.reg.model.RegResponce;
 import com.m90.zero.retrofit.RetrofitClientInstance;
+import com.m90.zero.utils.SessionHelper;
 import com.m90.zero.utils.Utilities;
+
+import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -48,7 +54,7 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
     String customer_firstName ;
     String customer_email_id ;
     String customer_phone ;
-   // String merchant_key="03M4QISVM0";  //production
+    // String merchant_key="03M4QISVM0";  //production
     String merchant_key = "2PBP7IABZ2";
     String merchant_udf1 = "";
     String merchant_udf2 = "";
@@ -63,10 +69,15 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
     String customer_zipcode = "";
     //String salt="5NVGFAOE8Z"; //production
     String salt = "DAH88E3UWQ";
-    int customers_unique_id = 1;
+    //int customers_unique_id = 1;
+    int customers_unique_id;
     String payment_mode = "test";
     //String payment_mode="production";
     StringBuilder sb;
+    SessionHelper sessionHelper;
+    int userid;
+
+    DecimalFormat format;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,14 +86,13 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
         binding = DataBindingUtil.setContentView(this, R.layout.activity_reg);
         activity = RegActivity.this;
         progressDialog = new ProgressDialog(activity);
+        sessionHelper = new SessionHelper(activity);
         binding.btnReg.setOnClickListener(this);
         binding.btnCode.setOnClickListener(this);
         binding.btnLogin.setOnClickListener(this);
 
-        customer_firstName="priya";
-        customer_email_id="priyapalaskar545@gmail.com";
-        customer_phone="9172887936";
-        customers_unique_id= 1;
+        format = new DecimalFormat("0.#");
+
         TrxnId();
         binding.chType.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -91,10 +101,13 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                 {
                     binding.etCode.setText("");
                     binding.btnCode.setVisibility(View.GONE);
+                    binding.etCode.setEnabled(true);
                 }
                 else if(binding.chType.isChecked()==false)
                 {
                     binding.btnCode.setVisibility(View.VISIBLE);
+                    binding.etCode.setText("");
+                    binding.etCode.setEnabled(false);
 
                 }
             }
@@ -118,52 +131,36 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                 break;
             case R.id.btn_reg:
 
-                merchant_payment_amount=1000.0;
-                String hash = merchant_key + "|" + merchant_trxnId + "|" + merchant_payment_amount + "|" +
-                        merchant_productInfo + "|"+ customer_firstName + "|" + customer_email_id + "|"
-                        + merchant_udf1 + "|" + merchant_udf2 + "|" + merchant_udf3 + "|" + merchant_udf4 + "|"
-                        + merchant_udf5 + "||||||" + salt + "|"+ merchant_key;
-                Log.e( "hashchk: ",hash );
-                hashgeneration(hash);
-                Log.e( "onClick: ",merchant_trxnId+"  " + merchant_payment_amount+" "+merchant_productInfo+" "+customer_firstName+""+customer_email_id);
 
-                payment(merchant_trxnId, merchant_payment_amount, merchant_productInfo,
-                        customer_firstName,customer_email_id, customer_phone,
-                        merchant_key, merchant_udf1, merchant_udf2,
-                        merchant_udf3, merchant_udf4, merchant_udf5, customer_address1, customer_address2,
-                        customer_city, customer_state,
-                        customer_country, customer_zipcode, sb, customers_unique_id, payment_mode);
-
-              /*  if(binding.etFirstname.getText().toString().equals("")|| binding.etLastname.getText().toString().equals("")
-                || binding.etMobile.getText().toString().equals("")|| binding.etEmail.getText().toString().equals("")||
+                if(binding.etFirstname.getText().toString().equals("")|| binding.etLastname.getText().toString().equals("")
+                        || binding.etMobile.getText().toString().equals("")|| binding.etEmail.getText().toString().equals("")||
                         binding.etPass.getText().toString().equals("")|| binding.etConpass.getText().toString().equals("")
-                ||binding.etCode.getText().toString().equals(""))
+                        ||binding.etCode.getText().toString().equals(""))
                 {
                     Toast.makeText(activity, "Enter all details", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     if (isValidPhoneNumber(binding.etMobile.getText().toString()))
                     {
-                            addUser(binding.etFirstname.getText().toString(), binding.etLastname.getText().toString(),
-                                    binding.etMobile.getText().toString(), binding.etEmail.getText().toString(),
-                                    binding.etPass.getText().toString(), binding.etConpass.getText().toString(),
-                                    binding.etCode.getText().toString());
+                        addUser(binding.etFirstname.getText().toString(), binding.etLastname.getText().toString(),
+                                binding.etMobile.getText().toString(), binding.etEmail.getText().toString(),
+                                binding.etPass.getText().toString(), binding.etConpass.getText().toString(),
+                                binding.etCode.getText().toString());
                     }
                     else {
-                        Toast.makeText(activity, "Entre proper mobile number", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "Mobile number must be 10 digits", Toast.LENGTH_SHORT).show();
                     }
 
-                }*/
+                }
                 break;
 
-                case R.id.btn_code:
-                Toast.makeText(activity, "nnn", Toast.LENGTH_SHORT).show();
+            case R.id.btn_code:
                 getcode();
                 break;
 
-                case R.id.btn_login:
-                    Utilities.launchActivity(activity,MainActivity.class,true);
-                    
+            case R.id.btn_login:
+                Utilities.launchActivity(activity, LoginActivity.class,true);
+
                 break;
         }
     }
@@ -186,6 +183,7 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                         CodeResponce codeResponce = response.body();
 
                         binding.etCode.setText(codeResponce.code);
+                        binding.etCode.setEnabled(false);
                         binding.chType.setChecked(false);
 
                         progressDialog.dismiss();
@@ -211,6 +209,15 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
     void addUser(String first_name, String last_name, String mobile_number,String email,
                  String password, String password_confirmation, String sponsor_by) {
 
+        customer_firstName=binding.etFirstname.getText().toString();
+        customer_email_id=binding.etEmail.getText().toString();
+        customer_phone=binding.etMobile.getText().toString();
+
+     /*   customer_firstName="priya";
+        customer_email_id="priyapalaskar545@gmail.com";
+        customer_phone="9172887936";*/
+        // customers_unique_id= 1;
+
         RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(RegApi.class);
 
@@ -227,9 +234,31 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                         RegResponce regResponce = response.body();
                         if (regResponce.status == 201)
                         {
-                           Toast.makeText(activity, "" + regResponce.message, Toast.LENGTH_SHORT).show();
-                           Log.e("onResponse: ", " " + regResponce.message);
+                            customers_unique_id= regResponce.data.id;
 
+                            userid=regResponce.data.id;
+                            // merchant_payment_amount= regResponce.data.amount;
+                            merchant_payment_amount= Double.valueOf(regResponce.data.amount);
+
+                            //System.out.println(format.format(price));
+
+                            String hash = merchant_key + "|" + merchant_trxnId + "|" + merchant_payment_amount + "|" +
+                                    merchant_productInfo + "|"+ customer_firstName + "|" + customer_email_id + "|"
+                                    + merchant_udf1 + "|" + merchant_udf2 + "|" + merchant_udf3 + "|" + merchant_udf4 + "|"
+                                    + merchant_udf5 + "||||||" + salt + "|"+ merchant_key;
+                            Log.e( "hashchk: ",hash );
+                            hashgeneration(hash);
+                            Log.e( "onClick: ",merchant_trxnId+"  " + merchant_payment_amount+" "+merchant_productInfo+" "+customer_firstName+""+customer_email_id);
+
+                            payment(merchant_trxnId, merchant_payment_amount, merchant_productInfo,
+                                    customer_firstName,customer_email_id, customer_phone,
+                                    merchant_key, merchant_udf1, merchant_udf2,
+                                    merchant_udf3, merchant_udf4, merchant_udf5, customer_address1, customer_address2,
+                                    customer_city, customer_state,
+                                    customer_country, customer_zipcode, sb, customers_unique_id, payment_mode);
+
+                            Toast.makeText(activity, "" + regResponce.message, Toast.LENGTH_SHORT).show();
+                            Log.e("onResponse: ", " " + regResponce.message);
                         }
                         else {
                             Toast.makeText(activity, "" + regResponce.message.toString(), Toast.LENGTH_SHORT).show();
@@ -293,47 +322,70 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                     String result = data.getStringExtra("result");
                     String payment_response = data.getStringExtra("payment_response");
                     if (result.contains(PWEStaticDataModel.TXN_SUCCESS_CODE)) {
-                     //   addFees(prefManager.getUSER_ID(), String.valueOf(merchant_payment_amount), merchant_trxnId);
+
+                        Log.e( "onActivityResult: ", payment_response);
+                        JSONObject obj = new JSONObject(payment_response);
+                        Log.e("MyApp", obj.getString("net_amount_debit"));
+                        addUserAfterPayment(String.valueOf(userid),obj.getString("txnid"),obj.getString("status"));
+                        //   addFees(prefManager.getUSER_ID(), String.valueOf(merchant_payment_amount), merchant_trxnId);
 //PWEStaticDataModel. TXN_SUCCESS_CODE is a string constant and its value is “ payment_successfull ”
 //Code here will execute if the payment transaction completed successfully.
 // here merchant can show the payment success message.
                     } else if (result.contains(PWEStaticDataModel.TXN_TIMEOUT_CODE)) {
+
+                        Log.e( "onActivityResult: ", "TXN_TIMEOUT_CODE");
+
 //PWEStaticDataModel. TXN_TIMEOUT_CODE is a string constant and its value is “ txn_session_timeout ”
 //Code here will execute if the payment transaction failed because of the transaction time out.
 // here merchant can show the payment failed message.
                     } else if (result.contains(PWEStaticDataModel.TXN_BACKPRESSED_CODE)) {
+                        Log.e( "onActivityResult: ", "TXN_BACKPRESSED_CODE");
+
 //PWEStaticDataModel. TXN_BACKPRESSED_CODE is a string constant and its value is “ back_pressed ”
 //Code here will execute if the user pressed the back button on coupons Activity.
 // here merchant can show the payment failed message.
                     } else if (result.contains(PWEStaticDataModel.TXN_USERCANCELLED_CODE)) {
+
+                        Log.e( "onActivityResult: ", "TXN_USERCANCELLED_CODE");
+
 //PWEStaticDataModel. TXN_USERCANCELLED_CODE is a string constant and its value is “ user_cancelled ”
 //Code here will execute if the the user pressed the cancel button during the payment process.
 // here merchant can show the payment failed message.
                     } else if (result.contains(PWEStaticDataModel.TXN_ERROR_SERVER_ERROR_CODE)) {
+                        Log.e( "onActivityResult: ", "TXN_ERROR_SERVER_ERROR_CODE");
+
 //PWEStaticDataModel. TXN_ERROR_SERVER_ERROR_CODE is a string constant and its value  is “error_server_error ”
 //Code here will execute if the server side error occured during payment process.
 // here merchant can show the payment failed message.
                     } else if (result.contains(PWEStaticDataModel.TXN_ERROR_TXN_NOT_ALLOWED_CODE)) {
+                        Log.e( "onActivityResult: ", "TXN_ERROR_TXN_NOT_ALLOWED_CODE");
+
 //PWEStaticDataModel. TXN_ERROR_TXN_NOT_ALLOWED_CODE is a string constant and its value is trxn_not_allowed ”
 //Code here will execute if the the transaction is not allowed.
 // here merchant can show the payment failed message.
                     } else if (result.contains(PWEStaticDataModel.TXN_BANK_BACK_PRESSED_CODE)) {
+                        Log.e( "onActivityResult: ", "TXN_BANK_BACK_PRESSED_CODE");
+
 //PWEStaticDataModel. TXN_BANK_BACK_PRESSED_CODE is a string constant and its value is “bank_back_pressed”
 //Code here will execute if the the customer press the back button on bank screen.
 // here merchant can show the payment failed message.
                     } else {
+
+                        Log.e( "onActivityResult: ", "else");
+
 // Here the value of result is “ payment_failed ” or “ error_noretry ” or “ retry_fail_error ”
 //Code here will execute if payment is failed some other reasons.
 // here merchant can show the payment failed message.
                     }
                 } catch (Exception e) {
+
+                    Log.e( "onActivityResult: ", e.toString());
+
 //Handle exceptions here
                 }
             }
         }
     }
-
-
     void hashgeneration(String hash1) {
         MessageDigest md = null;
         try {
@@ -355,4 +407,49 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
         merchant_trxnId = ft.format(dNow);
         Log.e("TrxnId: ", merchant_trxnId);
     }
+
+    void addUserAfterPayment(String userid, String transid, String status) {
+
+        RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                create(RegApi.class);
+
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
+        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
+        progressDialog.show();
+        //http://api.eurekatalents.in/api/customer/activation/27/APP1223073831/complete
+        regApi.addUserAfterPayment("http://api.eurekatalents.in/api/customer/activation/"+userid+"/"+transid+"/"+status).
+                enqueue(new Callback<AfterPaymentRegResponce>() {
+
+                    @Override
+                    public void onResponse(Call<AfterPaymentRegResponce> call, Response<AfterPaymentRegResponce> response) {
+
+                        AfterPaymentRegResponce regResponce = response.body();
+                        if (regResponce.status == 201)
+                        {
+                            // success
+                            sessionHelper.setLogin(true);
+                            Utilities.launchActivity(RegActivity.this, HomeActivity.class,true);
+
+                        }
+                        else {
+                            Toast.makeText(activity, "" + regResponce.message.toString(), Toast.LENGTH_SHORT).show();
+                            Log.e("onResponse: ", " " + new Gson().toJson(regResponce.message));
+                        }
+
+                        progressDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(Call<AfterPaymentRegResponce> call, Throwable t) {
+
+                        progressDialog.dismiss();
+                        //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
+                        Log.e("errorchk", t.getMessage());
+
+                    }
+                });
+
+    }
+
 }

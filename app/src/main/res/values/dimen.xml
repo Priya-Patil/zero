@@ -19,7 +19,7 @@
     <dimen name="design_fab_image_size" tools:override="true">50dp</dimen>
 
 
-    <dimen name="padding_10" tools:override="true">8dp</dimen>
+    <dimen name="padding_10" tools:override="true">10dp</dimen>
     <dimen name="cardsize">30dp</dimen>
     <dimen name="padding_20" tools:override="true">20dp</dimen>
     <dimen name="textSizeForm">15sp</dimen>

@@ -1,6 +1,8 @@
 package com.m90.zero.home.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.m90.zero.R;
-import com.m90.zero.home.model.CategoryResponse;
+import com.m90.zero.home.allcategory.ProductSubCategoryActivity;
+import com.m90.zero.home.model.CategoryDetailsResponse;
+import com.m90.zero.home.model.CategoryDetailsResponse;
 
 import java.util.ArrayList;
 
@@ -23,15 +27,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.MyView
     private static final String TAG = "CategoryAdapter";
 
     private Activity mContext;
-    ArrayList<CategoryResponse> list;
+    ArrayList<CategoryDetailsResponse> list;
     private  ItemClickListener itemClickListener;
 
-    public CategoryAdapter(Activity context, ArrayList<CategoryResponse> list) {
+    public CategoryAdapter(Activity context, ArrayList<CategoryDetailsResponse> list) {
         this.list = list;
         mContext = context;
     }
 
-    public CategoryAdapter(Activity context, ArrayList<CategoryResponse> list, ItemClickListener itemClickListener){
+    public CategoryAdapter(Activity context, ArrayList<CategoryDetailsResponse> list, ItemClickListener itemClickListener){
         mContext = context;
         this.list = list;
         this.itemClickListener=itemClickListener;
@@ -54,10 +58,23 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, final int i) {
-        final CategoryResponse item = list.get(i);
+        final CategoryDetailsResponse item = list.get(i);
 
         Log.e("vlistqq", list.toString());
-        viewHolder.tv_category.setText(item.getCategory());
+        viewHolder.tv_category.setText(item.name);
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                ProductSubCategoryActivity.type = 1;
+                Intent send = new Intent(mContext, ProductSubCategoryActivity.class);
+                Bundle b = new Bundle();
+                b.putSerializable("CategoryDetailsResponse",item);
+                send.putExtras(b);
+                mContext.startActivity(send);
+            }
+        });
         //viewHolder.img.setBackground(mContext.getResources().getDrawable(item.getImage_drawable()));
     }
 
@@ -87,7 +104,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.MyView
     }
 
     //region Search Filter (setFilter Code)
-    public void setFilter(ArrayList<CategoryResponse> newList) {
+    public void setFilter(ArrayList<CategoryDetailsResponse> newList) {
         list = new ArrayList<>();
         list.addAll(newList);
         notifyDataSetChanged();

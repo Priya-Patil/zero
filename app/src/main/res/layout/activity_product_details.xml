@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".productdetail.ProductDetailsActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/padding_10">
+
+    <!--region Toolbar Region-->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="top">
+
+            <RelativeLayout
+                android:id="@+id/originalToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/btn_openDrawer"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/ic_arrow_back"
+                    android:backgroundTint="@color/white"/>
+
+                <TextView
+                    android:id="@+id/txt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="@string/app_name"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="22dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_toRightOf="@+id/btn_openDrawer" />
+
+
+                <ImageView
+                    android:id="@+id/iv_cart"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/ic_baseline_search_24"
+                    android:backgroundTint="@color/white"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+
+    </com.google.android.material.appbar.AppBarLayout>
+    <!--endregion-->
+
+    <com.daimajia.slider.library.SliderLayout
+        android:id="@+id/slider"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+    <com.daimajia.slider.library.Indicators.PagerIndicator
+        android:id="@+id/custom_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@id/slider"/>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_name"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp"
+        android:visibility="visible"
+        android:fontFamily="@font/montserrat" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_shoartDesc"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        android:visibility="visible"
+        android:fontFamily="@font/montserrat" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_Desc"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        android:visibility="visible"
+        android:fontFamily="@font/montserrat"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/darker_gray"
+        android:layout_marginTop="@dimen/padding_10"
+        android:fontFamily="@font/montserrat"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:orientation="horizontal">
+ <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_qty"
+        android:layout_marginRight="2dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16dp"
+        android:visibility="visible"
+     android:fontFamily="@font/montserrat"
+     />
+
+  <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_unitType"
+        android:layout_marginRight="4dp"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        android:visibility="visible"
+      android:fontFamily="@font/montserrat"
+      />
+
+
+    </LinearLayout>
+
+ <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_rating"
+        android:paddingRight="10dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/white"
+        android:textSize="12dp"
+        android:drawableLeft="@drawable/ic_baseline_star_rate_24"
+        android:drawableTint="@color/white"
+        android:drawablePadding="@dimen/fontStyle5"
+        android:visibility="visible"
+        android:fontFamily="@font/montserrat"
+        android:padding="@dimen/fontStyle5"
+        android:background="@drawable/rectangular_circle_small"
+     />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textStyle="normal"
+        android:id="@+id/tv_note"
+        android:layout_marginRight="4dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        android:visibility="visible"
+        android:fontFamily="@font/montserrat"
+        />
+
+    </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:weightSum="2"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:id="@+id/tv_addToCart"
+            android:layout_weight="1"
+            android:layout_marginRight="4dp"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:textAllCaps="true"
+            android:gravity="center"
+            android:background="@color/colorPrimary"
+            android:text="Add to Cart"
+            android:visibility="visible"
+            android:fontFamily="@font/montserrat" />
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:id="@+id/tv_buyNow"
+            android:layout_weight="1"
+            android:text="Buy Now"
+            android:gravity="center"
+            android:background="@color/white"
+            android:layout_marginRight="4dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14dp"
+            android:visibility="visible"
+            android:fontFamily="@font/montserrat" />
+
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -5,35 +5,61 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".about.AboutActivity">
+        <activity android:name=".cart.CartActivity">
 
         </activity>
-        <activity android:name=".home.HomeActivity" />
-        <activity android:name=".tac.TACActivity" >
+        <activity android:name=".home.allcategory.ShopNowActivity" />
+        <activity android:name=".forgetpassword.ForgetPasswordActivity" />
+        <activity android:name=".home.viewmore.ViewMoreActivity" />
+        <activity android:name=".home.brands.BrandsActivity" />
+        <activity android:name=".productdetail.ProductDetailsActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".reg.RegActivity">
+        <activity android:name=".SnapActivity" />
+        <activity android:name=".home.allcategory.ProductSubCategoryActivity" />
+        <activity android:name=".profile.SponsorTableActivity" />
+        <activity android:name=".profile.WalletBalanceTableActivity" />
+        <activity android:name=".order.OrderActivity" />
+        <activity android:name=".home.allcategory.AllCategoryActivity" />
+        <activity android:name=".profile.ProfileActivity" />
+        <activity android:name=".about.AboutActivity" />
+        <activity android:name=".home.HomeActivity" />
+        <activity android:name=".tac.TACActivity" />
+        <activity android:name=".reg.RegActivity" />
+        <activity android:name=".login.LoginActivity" />
+        <activity android:name=".faq.FaqActivity" />
+        <activity android:name=".splash.SplashActivity">
 
         </activity>
-        <activity android:name=".MainActivity" />
-        <activity android:name=".splash.SplashActivity"></activity>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>
