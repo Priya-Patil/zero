@@ -6,7 +6,7 @@ public class ProfileImageUpdateResponse {
 
 
     @SerializedName("data")
-    public int data;
+    public String data;
 
     @SerializedName("content_type")
     public String content_type;
@@ -20,7 +20,7 @@ public class ProfileImageUpdateResponse {
     @Override
     public String toString() {
         return "ProfileImageUpdateResponse{" +
-                "data=" + data +
+                "data='" + data + '\'' +
                 ", content_type='" + content_type + '\'' +
                 ", message='" + message + '\'' +
                 ", status=" + status +

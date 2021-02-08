@@ -2,9 +2,11 @@ package com.m90.zero.forgetpassword;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -224,6 +226,7 @@ public class ForgetPasswordActivity extends AppCompatActivity {
 
     void sendOTP(String mobile) {
 
+        if (Utilities.isNetworkAvailable(activity)){
         OTPApi otpApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(OTPApi.class);
 
@@ -271,12 +274,15 @@ public class ForgetPasswordActivity extends AppCompatActivity {
                     }
                 });
 
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
 
     void setPassword(String mobile_number, String otp, String password,String password_confirmation) {
 
+        if (Utilities.isNetworkAvailable(activity)){
         OTPApi otpApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(OTPApi.class);
 
@@ -299,9 +305,12 @@ public class ForgetPasswordActivity extends AppCompatActivity {
                             binding.layout3.setVisibility(View.VISIBLE);
 
                         }
-                        else {
-                            Toast.makeText(activity, "" + setPassResponce.message.toString(), Toast.LENGTH_SHORT).show();
-                            Log.e("onResponse: ", " " + new Gson().toJson(setPassResponce.message));
+
+                        if (setPassResponce.status == 401)
+                        {
+                            Log.e("TAG","setPassResponce: " + setPassResponce.message);
+                            authenticationDialog(String.valueOf(setPassResponce.message));
+                            //Toast.makeText(activity, "" + profileResponse.message , Toast.LENGTH_SHORT).show();
                         }
 
                         progressDialog.dismiss();
@@ -315,7 +324,9 @@ public class ForgetPasswordActivity extends AppCompatActivity {
 
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -369,6 +380,24 @@ public class ForgetPasswordActivity extends AppCompatActivity {
                 })
                 .onSameThread()
                 .check();
+    }
+
+    private void authenticationDialog(String errorMessage) {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
+        mBuilder.setTitle(errorMessage);
+        mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+
+                dialog.dismiss();
+                Utilities.launchActivity(activity, LoginActivity.class,true);
+
+            }
+        });
+
+        AlertDialog mDialog = mBuilder.create();
+        mDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_background);
+        mDialog.show();
     }
 
 

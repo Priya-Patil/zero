@@ -31,6 +31,8 @@ import com.m90.zero.R;
 
 import com.m90.zero.databinding.ActivityProfileBinding;
 import com.m90.zero.home.HomeActivity;
+import com.m90.zero.login.LoginActivity;
+import com.m90.zero.login.model.LoginResponce;
 import com.m90.zero.profile.adapter.DownlineAdapter;
 import com.m90.zero.profile.api.CityApi;
 import com.m90.zero.profile.api.ProfileApi;
@@ -45,20 +47,28 @@ import com.m90.zero.profile.model.ReferalResponse;
 import com.m90.zero.profile.model.StateDetailsResponse;
 import com.m90.zero.profile.model.StateResponse;
 import com.m90.zero.retrofit.RetrofitClientInstance;
+import com.m90.zero.retrofit.TokenInterceptor;
 import com.m90.zero.utils.UriUtils;
 import com.m90.zero.utils.Utilities;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -66,10 +76,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     ActivityProfileBinding binding;
     ProgressDialog progressDialog;
     Activity activity;
-    ArrayList<ReferalResponse> referalEntities;
-    ArrayList<ProfileDetailsResponse> profileDetailsResponses;
-    ArrayList<ProfileAllDetailsResponse> profileAllDetailsResponses;
-    ArrayList<DownlineResponse> downlineResponses;
     DownlineAdapter downlineAdapter;
 
     public static final int RequestPermissionCode = 2;
@@ -88,6 +94,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     Uri uri;
     ArrayList<String> a;
 
+    ProfileResponse loginResponce;
+
     boolean isImageSelected = false;
 
     private int[] myImageList = new int[]{R.drawable.headpgns, R.drawable.headpgns, R.drawable.headpgns, R.drawable.headpgns, R.drawable.headpgns, R.drawable.headpgns};
@@ -101,6 +109,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     int stateId=0 , stateIdFetch = 0;
     int cityIdP = 0, cityIdFetch = 0;
 
+    static String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +118,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         binding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
         activity = ProfileActivity.this;
         a = new ArrayList<>();
+
+        accessToken = Utilities.getSavedUserData(activity,"accesstoken");
 
         EnableRuntimePermission();
         progressDialog = new ProgressDialog(activity);
@@ -131,11 +142,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             Log.e(TAG,"userID "+ Utilities.getSavedUserData(activity,"userid"));
 
             userid = Integer.parseInt(Utilities.getSavedUserData(activity, "userid"));
+            //getProfile(userid);
+            Log.e(TAG, "onCreate: "+accessToken );
+
+            getProfile(userid,accessToken);
+
         }catch (Exception e){}
 
-       getProfile(userid);
-      //  getProfile(61);
-        //getState();
 
     }
 
@@ -214,15 +227,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 else if (!Utilities.emailValidate(email))
                 {
                     Toast.makeText(getApplicationContext(),"Please enter valid emaild Id",Toast.LENGTH_SHORT).show();
-                }/*else if (isValidPhoneNumber(binding.tvMobile.getText().toString()))
-                {
-                    Toast.makeText(getApplicationContext(),"Please Enter Valid Mobile Number",Toast.LENGTH_SHORT).show();
-                }*/
-                /*else if(binding.tvPincode.length()<6)
-                {
-                    Toast.makeText(getApplicationContext(),"Please Enter Valid Mobile Number",Toast.LENGTH_SHORT).show();
-                }*/else {
-                     updateProfile(userid, first_name, middle_name, last_name, mobile_number, email,
+                }else {
+                    Log.e(TAG, "onSSS: "+userid+" "+first_name+" "+middle_name+" "+last_name+" "+
+                            mobile_number+" "+email+" "+stateId+" "+cityIdP+" "+pincode+" "+address);
+
+                     updateProfile(accessToken,userid, first_name, middle_name, last_name, mobile_number, email,
                            String.valueOf(stateId), String.valueOf(cityIdP), pincode, address);
                 }
                 break;
@@ -250,10 +259,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
          case R.id.btn_ok:
-                    updateImage(userid,fullpath);
+                    updateImage(userid,fullpath,accessToken);
                 break;
 
-            case R.id.iv_share:
+         case R.id.iv_share:
                 String message = binding.txtSponsorCode.getText().toString();
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
@@ -263,8 +272,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
               case R.id.btn_openDrawer:
                onBackPressed();
-                  break;
-
+              break;
 
         }
     }
@@ -273,38 +281,40 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        Utilities.launchActivity(activity,HomeActivity.class,true);
     }
 
-    void getProfile(int user_id) {
+    void getProfile(int user_id, String accessToken) {
 
-        ProfileApi profileApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(ProfileApi.class);
+        if(Utilities.isNetworkAvailable(activity)){
+            ProfileApi profileApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                            create(ProfileApi.class);
 
         progressDialog.setMessage("Please Wait...");
         progressDialog.setCancelable(false);
         progressDialog.show();
-        profileApi.getProfile(user_id).
+
+       profileApi.getProfile("Bearer "+accessToken,user_id).
                 enqueue(new Callback<ProfileResponse>() {
 
                     @Override
                     public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
 
                         ProfileResponse profileResponse = response.body();
-                       //ArrayList<DownlineResponse> downline = profileResponse.data.downline;
 
                         if (profileResponse.status== 200) {
 
-                            //http://api.eurekatalents.in/users/default.png
                             bindValuesToTextview(profileResponse);
-
-                            Log.e(TAG,"userrrrrrr: " + profileResponse.data.profile.get(0).user.toString());
-                            Log.e(TAG,"onResponseqq: " + profileResponse.data.profile.get(0).referal.sponsor_by.username);
 
                             Toast.makeText(activity, "" + profileResponse.message, Toast.LENGTH_SHORT).show();
                             Log.e(TAG,"onResponseaa: " + profileResponse.message);
-                        } else {
-                            Toast.makeText(activity, "" + profileResponse.message, Toast.LENGTH_SHORT).show();
+                        }
+
+                        if (profileResponse.status == 401)
+                        {
                             Log.e(TAG,"onResponsezz: " + profileResponse.message);
+                            authenticationDialog(profileResponse.message);
+                            //Toast.makeText(activity, "" + profileResponse.message , Toast.LENGTH_SHORT).show();
                         }
 
                         progressDialog.dismiss();
@@ -315,20 +325,21 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     public void onFailure(Call<ProfileResponse> call, Throwable t) {
 
                         progressDialog.dismiss();
-                        //Utilities.se
-                        //
-                        // tError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
                         Log.e(TAG,"errorchk getProf "+ t.getMessage());
 
                     }
                 });
 
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    void updateProfile(int user_id,String first_name,String middle_name,String last_name,String mobile_number,
+    void updateProfile(String accessToken,int user_id,String first_name,String middle_name,String last_name,String mobile_number,
                        String email, String state_id,String city_id,String pincode,String address) {
 
+        if (Utilities.isNetworkAvailable(activity))
+        {
         ProfileApi profileApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(ProfileApi.class);
 
@@ -339,7 +350,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         Log.e(TAG, "onClick1111: "+userid+" "+first_name+" "+middle_name+" "+last_name+" "+
                 mobile_number+" "+email+" "+stateId+" "+cityIdP+" "+pincode+" "+address);
 
-        profileApi.updateProfile(user_id,first_name,
+        profileApi.updateProfile("Bearer "+accessToken,user_id,first_name,
                 middle_name,last_name,mobile_number,
                 email,state_id,
                 city_id,pincode,address).
@@ -349,21 +360,24 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     public void onResponse(Call<ProfileUpdateResponse> call, Response<ProfileUpdateResponse> response) {
 
                         ProfileUpdateResponse profileResponse = response.body();
-                        //ArrayList<DownlineResponse> downline = profileResponse.data.downline;
                         Log.e(TAG,"onResponseaa: " + profileResponse.toString());
 
                         if (profileResponse.status== 200) {
 
                             //http://api.eurekatalents.in/users/default.png
-                              Toast.makeText(activity, "" + profileResponse.message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "" + profileResponse.message, Toast.LENGTH_SHORT).show();
                             binding.llEditInfo.setVisibility(View.GONE);
                             binding.llShowInfo.setVisibility(View.VISIBLE);
+                            Utilities.launchActivity(activity,ProfileActivity.class,true);
                             Log.e(TAG,"onResponseaa: " + profileResponse.message);
-                        } else {
-                            Toast.makeText(activity, "" + profileResponse.message, Toast.LENGTH_SHORT).show();
-                            Log.e(TAG,"onResponsezz: " + profileResponse.message);
                         }
 
+                        if (profileResponse.status == 401)
+                        {
+                            Log.e(TAG,"onResponsezz: " + profileResponse.message);
+                            authenticationDialog(profileResponse.message);
+                            //Toast.makeText(activity, "" + profileResponse.message , Toast.LENGTH_SHORT).show();
+                        }
                         progressDialog.dismiss();
 
                     }
@@ -378,10 +392,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 });
 
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void updateImage(int userid,String imgpath) {
+    private void updateImage(int userid,String imgpath,String accessToken) {
         ProgressDialog progressDialog = new ProgressDialog(activity);
         progressDialog.setMessage("Loading...");
         progressDialog.setTitle("Update in Process");
@@ -389,6 +405,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         progressDialog.show();
         progressDialog.setCancelable(false);
 
+        if (Utilities.isNetworkAvailable(activity)){
         path = new File(imgpath);
 
         //  Log.e(TAG,"imgggg "+profileImage);
@@ -409,33 +426,40 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         ProfileApi profileApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(ProfileApi.class);
 
-        Log.e(TAG,"imgggg ddd"+id+" "+body);
-
-        profileApi.updateProfileImage(id,body).
+        profileApi.updateProfileImage("Bearer "+accessToken,id,body).
                 enqueue(new Callback<ProfileImageUpdateResponse>() {
                     @Override
                     public void onResponse(Call<ProfileImageUpdateResponse> call,
                                            Response<ProfileImageUpdateResponse> response) {
                         ProfileImageUpdateResponse profileImageUpdateResponse =  response.body();
-                        Log.e(TAG,"gggg "+profileImageUpdateResponse.toString());
 
                         if (profileImageUpdateResponse.status==200)
                         {
                             Toast.makeText(activity,""+profileImageUpdateResponse.message,Toast.LENGTH_SHORT).show();
-                        }else
+                            Log.e(TAG, "onResponsePIMG: "+profileImageUpdateResponse.toString());
+
+                            Utilities.saveUserData(activity,"profilePic",profileImageUpdateResponse.data);
+
+                        }
+
+                        if (profileImageUpdateResponse.status == 401)
                         {
-                            Toast.makeText(activity,""+profileImageUpdateResponse.message,Toast.LENGTH_SHORT).show();
+                            Log.e(TAG,"onResponsezz: " + profileImageUpdateResponse.message);
+                            authenticationDialog(profileImageUpdateResponse.message);
+                            //Toast.makeText(activity, "" + profileResponse.message , Toast.LENGTH_SHORT).show();
                         }
                         progressDialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Call<ProfileImageUpdateResponse> call, Throwable t) {
-                        Log.e(TAG," "+t.getMessage());
+                        Log.e(TAG,"ProfileImageUpdateResponse "+t.getMessage());
                         progressDialog.dismiss();
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void bindValuesToTextview(ProfileResponse profileResponse) {
@@ -448,70 +472,74 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 Utilities.getSavedUserData(activity,"profilePic"));
 
         //http://api.eurekatalents.in/storage/users/201231-Capturepro.PNG
-        Utilities.saveUserData(activity,"profilePic",profileResponse.data.profile.get(0).avatar.avatar);
 
+        /* ----------------------------      Header    --------------------------------------*/
         binding.txtName.setText(profileResponse.data.profile.get(0).first_name+" "+
                 profileResponse.data.profile.get(0).middle_name+" "+
                 profileResponse.data.profile.get(0).last_name);
 
+        /*  -----------------------------  Show Profile --------------------------------------*/
         binding.tvCompleteName.setText(profileResponse.data.profile.get(0).first_name+" "+
                 profileResponse.data.profile.get(0).middle_name+" "+
                 profileResponse.data.profile.get(0).last_name);
 
-        binding.tvShowAddress.setText(profileResponse.data.profile.get(0).address+","+
-                profileResponse.data.profile.get(0).pincode+","+
-                profileResponse.data.profile.get(0).city_id.name+","+
-                profileResponse.data.profile.get(0).state_id.name);
+        try {
+            binding.tvShowAddress.setText(profileResponse.data.profile.get(0).address + "," +
+                    profileResponse.data.profile.get(0).pincode + "," +
+                    profileResponse.data.profile.get(0).city_id.name + "," +
+                    profileResponse.data.profile.get(0).state_id.name);
+        }catch (Exception e)
+        {}
+
+        /* -------------------------- Edit ----------------------------------*/
 
         binding.tvFname.setText(profileResponse.data.profile.get(0).first_name);
         binding.tvMname.setText(profileResponse.data.profile.get(0).middle_name);
         binding.tvLname.setText(profileResponse.data.profile.get(0).last_name);
         binding.tvMobile.setText(profileResponse.data.profile.get(0).user.mobile_number);
-        binding.tvEmail.setText(profileResponse.data.profile.get(0).user.email);
+       binding.tvEmail.setText(profileResponse.data.profile.get(0).user.email);
 
         if (profileResponse.data.profile.get(0).state_id!=null) {
             stateIdFetch = profileResponse.data.profile.get(0).state_id.id;
+        }
+         if (profileResponse.data.profile.get(0).city_id!=null) {
             cityIdFetch = profileResponse.data.profile.get(0).city_id.id;
         }
         Log.e(TAG, "bindValuesToTextview: "+stateIdFetch+" "+cityIdFetch );
-        String email = Utilities.getSavedUserData(activity,"email");
-        ;
-
-        Log.e(TAG,""+profileResponse.data.profile.get(0).avatar.avatar);
 
        CircleImageView ivBasicImage = (CircleImageView) findViewById(R.id.civ_profile);
-       Picasso.with(activity).load("http://api.eurekatalents.in/"+
-               profileResponse.data.profile.get(0).avatar.avatar).into(ivBasicImage);
+       Picasso.with(activity).load(RetrofitClientInstance.BASE_URL_IMG+
+               Utilities.getSavedUserData(activity,"profilePic")).into(ivBasicImage);
 
-        profileGetImage = profileResponse.data.profile.get(0).avatar.avatar;
-        Log.e(TAG," profileGetImage "+profileGetImage);
-        binding.txtDesc.setText(Utilities.getSavedUserData(activity,"email"));
+        binding.txtDesc.setText(profileResponse.data.profile.get(0).user.email);
         binding.tvAddress.setText(profileResponse.data.profile.get(0).address);
         binding.tvPincode.setText(profileResponse.data.profile.get(0).pincode);
-        //binding.tvCity.setText(profileResponse.data.profile.get(0).city_id);
-        //binding.tvState.setText(profileResponse.data.profile.get(0).state_id);
         binding.txtSponsorCode.setText(profileResponse.data.profile.get(0).referal.sponsor_code);
 
         /* Account Section */
-        binding.tvAmt.setText(HomeActivity.currency+" "+profileResponse.data.profile.get(0).wallet_amount.get(0).balance_amount);
+
+        binding.tvAmt.setText(HomeActivity.currency+" "+String.format("%.2f",Double.parseDouble(profileResponse.data.profile.get(0).wallet_amount.get(0).balance_amount)));
         if (profileResponse.data.profile.get(0).sponsor_amount.size()!=0)
         {
-            binding.tvSponsorBalance.setText(HomeActivity.currency+" "+profileResponse.data.profile.get(0).sponsor_amount.get(0));
+            binding.tvSponsorBalance.setText(HomeActivity.currency+" "+String.format("%.2f",Double.parseDouble(profileResponse.data.profile.get(0).sponsor_amount.get(0).balance_amount)));
         }else
         {
             Log.e(TAG,"else ok");
         }
+        binding.tvDownlineCount.setText(String.valueOf(profileResponse.data.downline));
 
         getState();
 
         /*              ---------------Downline---------------              */
-        setDownline(profileResponse.data.downline);
+
+        //setDownline(profileResponse.data.downline);
 
 
     }
 
     void getState() {
 
+        if (Utilities.isNetworkAvailable(activity)){
         StateApi stateApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(StateApi.class);
 
@@ -531,41 +559,40 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     Toast.makeText(activity, "" + stateResponse.message, Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "onResponse: "+stateResponse.toString()+" "+stateDetailsResponses.toString() );
 
-                    ArrayList<String> name = new ArrayList<>();
-                    name.add("Select State");
+                    String[] spinnerArray = new String[stateResponse.data.size()];
+                    HashMap<Integer,String> spinnerMap = new HashMap<Integer, String>();
+                    for (int i = 0; i < stateResponse.data.size(); i++)
+                    {
+                        spinnerMap.put(i, String.valueOf(stateResponse.data.get(i).id));
+                        spinnerArray[i] = stateResponse.data.get(i).name;
+                    }
 
-                    for (StateDetailsResponse dd : stateDetailsResponses)
-                   {
-                       name.add(dd.name);
-                   }
-                    ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item,name);
+                    ArrayAdapter<String> adapter =new ArrayAdapter<String>(ProfileActivity.this,
+                            android.R.layout.simple_spinner_item, spinnerArray);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    binding.tvState.setAdapter(adapter);
 
-                    // Drop down layout style - list view with radio button
-                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-                    // attaching data adapter to spinner
-                    binding.tvState.setAdapter(dataAdapter);
                     binding.tvState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                            String item = adapterView.getItemAtPosition(pos).toString();
-                            // Showing selected spinner item
-                            stateId = pos+1;
-                            Log.e(TAG,"var a"+stateId+" fet"+stateIdFetch);
 
-                            if (stateIdFetch!=0)
+                            String name = binding.tvState.getSelectedItem().toString();
+                            String id1 = spinnerMap.get(binding.tvState.getSelectedItemPosition());
+                            Toast.makeText(activity,""+id1 +" "+name,Toast.LENGTH_SHORT).show();
+
+                            if(stateIdFetch!=0)
                             {
-                                Log.e(TAG,"var aaaa"+stateIdFetch);
-                                //stateIdFetch = stateIdFetch - 1;
-
-                                Log.e(TAG, String.valueOf(stateIdFetch-1));
-
-                                binding.tvState.setSelection(stateIdFetch-1);
-                                getCityFromState(String.valueOf(stateIdFetch-1));
-
+                                int selectionPosition= adapter.getPosition("id");
+                                binding.tvState.setSelection(stateIdFetch);
+                                Log.e(TAG, "onGetSelected: "+stateIdFetch +" "+selectionPosition);
+                                getCityFromState(String.valueOf(stateIdFetch));
                             }
                             else {
-                                getCityFromState(String.valueOf(stateId));
+                                int selectionPosition= adapter.getPosition("id");
+                                binding.tvState.setSelection(selectionPosition);
+                                stateId = Integer.parseInt(id1);
+                                Log.e(TAG, "onItemSelectedState: "+stateId +" "+selectionPosition +" "+id1);
+                                getCityFromState(id1);
                             }
                         }
 
@@ -574,6 +601,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
                         }
                     });
+
 
                 } else {
                     Toast.makeText(activity, "" + stateResponse.message, Toast.LENGTH_SHORT).show();
@@ -592,12 +620,15 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             }
         });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    void getCityFromState(String cityId) {
+    void getCityFromState(String stateid) {
         Log.e("onResponse:ssss ", "called");
 
+        if (Utilities.isNetworkAvailable(activity)){
         CityApi cityApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(CityApi.class);
 
@@ -605,75 +636,55 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        cityApi.getCity("http://api.eurekatalents.in/api/city/"+cityId).
+        cityApi.getCity(RetrofitClientInstance.BASE_URL+"city/"+stateid).
+        //cityApi.getCity("http://api.eurekatalents.in/api/city/"+stateid).
                 enqueue(new Callback<StateResponse>() {
 
                     @Override
                     public void onResponse(Call<StateResponse> call, Response<StateResponse> response) {
 
                         StateResponse stateResponse = response.body();
-                        ArrayList<StateDetailsResponse> stateDetailsResponses = stateResponse.data;
+                       // ArrayList<StateDetailsResponse> stateDetailsResponses = stateResponse.data;
 
-                          if (stateResponse.status == 200) {
-                                Toast.makeText(activity, "" + stateResponse.message, Toast.LENGTH_SHORT).show();
-                                //Log.e(TAG, "onResponse: "+stateResponse.toString()+" "+stateDetailsResponses.toString() );
+                        Log.e( "toString: ",stateResponse.toString() );
+                        String[] spinnerArray = new String[stateResponse.data.size()];
+                        HashMap<Integer,String> spinnerMap = new HashMap<Integer, String>();
+                        for (int i = 0; i < stateResponse.data.size(); i++)
+                        {
+                            spinnerMap.put(i, String.valueOf(stateResponse.data.get(i).id));
+                            spinnerArray[i] = stateResponse.data.get(i).name;
+                        }
 
+                        ArrayAdapter<String> adapter =new ArrayAdapter<String>(ProfileActivity.this,android.R.layout.simple_spinner_item, spinnerArray);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        binding.tvCity.setAdapter(adapter);
+                        binding.tvCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
 
-                             ArrayList arrayList = new ArrayList <> ();
-                             arrayList.add("Select City");
+                                String name = binding.tvCity.getSelectedItem().toString();
+                                Toast.makeText(activity,""+pos +" "+name,Toast.LENGTH_SHORT).show();
 
-                              ArrayList<StateDetailsResponse> name = new ArrayList<>();
-                                for (StateDetailsResponse dd : stateDetailsResponses)
+                                if(cityIdFetch!=0)
                                 {
-                                    StateDetailsResponse building = new StateDetailsResponse(dd.id, dd.name);
-                                    name.add(building);
-                                    arrayList.add(dd.name);
+                                    int selectionPosition= adapter.getPosition("id");
+                                    binding.tvCity.setSelection(cityIdFetch);
+                                    Log.e(TAG, "onGetSelected: "+cityIdFetch +" "+selectionPosition);
+                                    stateIdFetch=0;
                                 }
-                                ArrayAdapter<String> dataAdapter = new
-                                        ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item,arrayList);
+                                else {
+                                    binding.tvCity.setSelection(pos);
+                                    cityIdP = pos;
+                                    Log.e(TAG, "onItemSelectedCity: "+cityIdP +" "+pos);
 
-                                // Drop down layout style - list view with radio button
-                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                }
+                            }
 
-                                // attaching data adapter to spinner
-                                binding.tvCity.setAdapter(dataAdapter);
-                                binding.tvCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                    @Override
-                                    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                                        StateDetailsResponse item = name.get(pos);
-                                        // Showing selected spinner item
-                                        String name  =  item.getName();
-                                        cityIdP = item.getId();
-                                        //cityIdP = pos+1;
-                                        Log.e(TAG,"varcityp "+cityIdFetch+" "+" "+item);
-
-                                       /* if (item.getName().contains(""))
-                                        {
-
-                                        }*/
-
-                                       /* binding.tvCity.setSelection(item.getId());
-                                       if (cityIdFetch!=0)
-                                        {
-                                               binding.tvSetCity.setText(stateDetailsResponses.get(cityIdFetch).name);
-                                        }
-                                       else {
-                                            cityIdFetch = item.getId();
-
-                                        }*/
-                                    }
-
-                                    @Override
-                                    public void onNothingSelected(AdapterView<?> adapterView) {
-
-                                    }
-                                });
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
 
                             }
-                        else {
-                            Toast.makeText(activity, "" + stateResponse.message.toString(), Toast.LENGTH_SHORT).show();
-                            Log.e("onResponse: ", " " + new Gson().toJson(stateResponse.message));
-                        }
+                        });
 
                         progressDialog.dismiss();
                     }
@@ -688,6 +699,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 });
 
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setDownline(ArrayList<DownlineResponse> downline) {
@@ -765,7 +779,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 }
 
                 binding.civProfile.setImageURI(uri);
-                updateImage(userid,fullpath);
+                updateImage(userid,fullpath,accessToken);
 
                 //et_attach.setText("You selected total " + 1 + " Images");
             }
@@ -792,7 +806,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
                 fullpath = String.valueOf(finalFile);
                 binding.civProfile.setImageURI(uri);
-                updateImage(userid,fullpath);
+                updateImage(userid,fullpath,accessToken);
 
                 //et_attach.setText(fullpath);;
                 Log.d(TAG, "fullpath sss  " + fullpath);
@@ -849,6 +863,24 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
         return path;
 
+    }
+
+    private void authenticationDialog(String errorMessage) {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
+        mBuilder.setTitle(errorMessage);
+        mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+
+                dialog.dismiss();
+                Utilities.launchActivity(activity, LoginActivity.class,true);
+
+            }
+        });
+
+        AlertDialog mDialog = mBuilder.create();
+        mDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_background);
+        mDialog.show();
     }
 
 }

@@ -16,6 +16,7 @@ import com.m90.zero.R;
 import com.m90.zero.home.HomeActivity;
 
 import com.m90.zero.profile.model.DownlineResponse;
+import com.m90.zero.retrofit.RetrofitClientInstance;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -65,7 +66,8 @@ public class DownlineAdapter extends RecyclerView.Adapter<DownlineAdapter.MyView
         //viewHolder.iv_imgWallet.setBackground(mContext.getResources().getDrawable(item.avatar));
         //viewHolder.iv_imgWallet.set(item.avatar);
 
-         Picasso.with(mContext).load("http://api.eurekatalents.in/"+item.avatar).into(viewHolder.iv_imgWallet);
+         Picasso.with(mContext).load(RetrofitClientInstance.BASE_URL_IMG +item.avatar).into(viewHolder.iv_imgWallet);
+         //Picasso.with(mContext).load("http://api.eurekatalents.in/"+item.avatar).into(viewHolder.iv_imgWallet);
 
     }
 

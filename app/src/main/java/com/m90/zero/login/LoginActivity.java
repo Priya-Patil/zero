@@ -26,6 +26,8 @@ import com.m90.zero.reg.RegActivity;
 import com.m90.zero.reg.api.RegApi;
 import com.m90.zero.reg.model.AfterPaymentRegResponce;
 import com.m90.zero.retrofit.RetrofitClientInstance;
+import com.m90.zero.splash.SplashActivity;
+import com.m90.zero.utils.PrefManager;
 import com.m90.zero.utils.SessionHelper;
 import com.m90.zero.utils.Utilities;
 
@@ -79,6 +81,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //String payment_mode="production";
     StringBuilder sb;
     int userid;
+    PrefManager prefManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,77 +91,87 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         activity = LoginActivity.this;
         progressDialog = new ProgressDialog(activity);
         sessionHelper = new SessionHelper(activity);
+        prefManager = new PrefManager(activity);
 
         binding.txtSend.setOnClickListener(this);
         binding.btnReg.setOnClickListener(this);
         binding.btnForgotpass.setOnClickListener(this);
+        binding.btnHome.setOnClickListener(this);
         TrxnId();
-
 
     }
 
     void checkLogin(String mobile, String active) {
 
-        LoginApi loginApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(LoginApi.class);
+        if (Utilities.isNetworkAvailable(activity)){
+            LoginApi loginApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(LoginApi.class);
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
-        progressDialog.show();
-        loginApi.checkLogin(mobile, active).
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            loginApi.checkLogin(mobile, active).
                 enqueue(new Callback<LoginResponce>() {
 
                     @Override
                     public void onResponse(Call<LoginResponce> call, Response<LoginResponce> response) {
 
                         LoginResponce loginResponce = response.body();
-
-                        if (loginResponce.status == 200) {
-
-                            sessionHelper.setLogin(true);
-                            Utilities.launchActivity(activity, HomeActivity.class, true);
-
-                            Toast.makeText(activity, "" + loginResponce.message, Toast.LENGTH_SHORT).show();
-                            Log.e("onResponse: ", " " + loginResponce.message);
-                        }
-
-                        if (loginResponce.status == 403) {
-
-                            Toast.makeText(activity, "chklogin" + loginResponce.toString(), Toast.LENGTH_SHORT).show();
-                            customers_unique_id= loginResponce.data.id;
-                            userid=loginResponce.data.id;
-                            merchant_payment_amount= Double.valueOf(loginResponce.data.amount);
-                            customer_firstName=loginResponce.data.name;
-                            customer_email_id=loginResponce.data.email;
-                            customer_phone=loginResponce.data.mobile_number;
-
-                            String hash = merchant_key + "|" + merchant_trxnId + "|" + merchant_payment_amount + "|" +
-                                    merchant_productInfo + "|"+ customer_firstName + "|" + customer_email_id + "|"
-                                    + merchant_udf1 + "|" + merchant_udf2 + "|" + merchant_udf3 + "|" + merchant_udf4 + "|"
-                                    + merchant_udf5 + "||||||" + salt + "|"+ merchant_key;
-                            Log.e( "hashchk: ",hash );
-                            hashgeneration(hash);
-                            Log.e( "onClick: ",merchant_trxnId+"  " + merchant_payment_amount+" "+merchant_productInfo+" "+customer_firstName+""+customer_email_id);
-
-                            payment(merchant_trxnId, merchant_payment_amount, merchant_productInfo,
-                                    customer_firstName,customer_email_id, customer_phone,
-                                    merchant_key, merchant_udf1, merchant_udf2,
-                                    merchant_udf3, merchant_udf4, merchant_udf5, customer_address1, customer_address2,
-                                    customer_city, customer_state,
-                                    customer_country, customer_zipcode, sb, customers_unique_id, payment_mode);
-
-                            //Toast.makeText(activity, "" + loginResponce.message, Toast.LENGTH_SHORT).show();
-                        }
-
-                        else {
-                            Toast.makeText(activity, "" + loginResponce.message, Toast.LENGTH_SHORT).show();
-                            Log.e("onResponse: ", " " + loginResponce.message);
-
-                        }
-
-
                         progressDialog.dismiss();
+
+                        if (loginResponce!=null) {
+
+                            if (loginResponce.status == 200) {
+                                Log.e("onResponse: ", " " + loginResponce.toString() + "" + loginResponce.data.id);
+
+                                sessionHelper.setLogin(true);
+                                Utilities.launchActivity(activity, SplashActivity.class, true);
+                                Utilities.saveUserData(activity, "userid", String.valueOf(loginResponce.data.id));
+                                Utilities.saveUserData(activity, "profilePic", loginResponce.data.avatar);
+                                Utilities.saveUserData(activity, "name", loginResponce.data.name);
+                                Utilities.saveUserData(activity, "mobileNumber", loginResponce.data.mobile_number);
+                                Utilities.saveUserData(activity, "accesstoken", loginResponce.access_token);
+                                Utilities.saveUserData(activity, "sponsorcode", loginResponce.data.sponsor_code);
+                                Toast.makeText(activity, "" + loginResponce.message, Toast.LENGTH_SHORT).show();
+                                Log.e("onResponse: ", " " + loginResponce.message + "" + loginResponce.data.id);
+                            }
+
+                            //if (loginResponce.status == 403)
+                            if (loginResponce.status == 401) {
+
+                                Toast.makeText(activity, "chklogin" + loginResponce.toString(), Toast.LENGTH_SHORT).show();
+                                customers_unique_id = loginResponce.data.id;
+                                userid = loginResponce.data.id;
+                                merchant_payment_amount = Double.valueOf(loginResponce.data.amount);
+                                customer_firstName = loginResponce.data.name;
+                                customer_email_id = loginResponce.data.email;
+                                customer_phone = loginResponce.data.mobile_number;
+
+                                String hash = merchant_key + "|" + merchant_trxnId + "|" + merchant_payment_amount + "|" +
+                                        merchant_productInfo + "|" + customer_firstName + "|" + customer_email_id + "|"
+                                        + merchant_udf1 + "|" + merchant_udf2 + "|" + merchant_udf3 + "|" + merchant_udf4 + "|"
+                                        + merchant_udf5 + "||||||" + salt + "|" + merchant_key;
+                                Log.e("hashchk: ", hash);
+                                hashgeneration(hash);
+                                Log.e("onClick: ", merchant_trxnId + "  " + merchant_payment_amount + " " + merchant_productInfo + " " + customer_firstName + "" + customer_email_id);
+
+                                payment(merchant_trxnId, merchant_payment_amount, merchant_productInfo,
+                                        customer_firstName, customer_email_id, customer_phone,
+                                        merchant_key, merchant_udf1, merchant_udf2,
+                                        merchant_udf3, merchant_udf4, merchant_udf5, customer_address1, customer_address2,
+                                        customer_city, customer_state,
+                                        customer_country, customer_zipcode, sb, customers_unique_id, payment_mode);
+
+                                //Toast.makeText(activity, "" + loginResponce.message, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(activity, "" + loginResponce.message, Toast.LENGTH_SHORT).show();
+                                Log.e("onResponse: ", " " + loginResponce.message);
+                            }
+                        }else
+                        {
+                            Toast.makeText(activity, "Wrong Credential!!", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
 
                     @Override
@@ -171,7 +184,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
 
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -206,8 +221,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.btn_forgotpass:
                 Utilities.launchActivity(activity, ForgetPasswordActivity.class,false);
-
                 break;
+
+             case R.id.btn_home:
+                Utilities.launchActivity(activity, HomeActivity.class,false);
+                break;
+
+
+
         }
     }
 
@@ -320,14 +341,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     void addUserAfterPayment(String userid, String transid, String status) {
 
-        RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(RegApi.class);
+        if (Utilities.isNetworkAvailable(activity)){
+            RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(RegApi.class);
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
-        progressDialog.show();
-        regApi.addUserAfterPayment(RetrofitClientInstance.BASE_URL+"customer/activation/"+userid+"/"+transid+"/"+status).
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            // pbLoading.setProgressStyle(R.id.abbreviationsBar);
+            progressDialog.show();
+            regApi.addUserAfterPayment(RetrofitClientInstance.BASE_URL+"customer/activation/"+userid+"/"+transid+"/"+status).
                 enqueue(new Callback<AfterPaymentRegResponce>() {
 
                     @Override
@@ -358,7 +380,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
 

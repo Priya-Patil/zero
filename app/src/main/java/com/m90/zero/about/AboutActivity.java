@@ -19,6 +19,7 @@ import com.m90.zero.about.model.AboutResponce;
 import com.m90.zero.databinding.ActivityAboutBinding;
 import com.m90.zero.login.api.LoginApi;
 import com.m90.zero.retrofit.RetrofitClientInstance;
+import com.m90.zero.utils.Utilities;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,6 +45,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 
     void getAbout() {
 
+        if (Utilities.isNetworkAvailable(activity)){
         AboutApi aboutApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(AboutApi.class);
 
@@ -84,7 +86,9 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
 
     }
 

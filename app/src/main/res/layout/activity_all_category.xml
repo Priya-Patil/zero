@@ -3,100 +3,159 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".home.allcategory.AllCategoryActivity">
 
-    <!--region Toolbar Region-->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        android:layout_height="match_parent"
+        >
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="top">
+            android:layout_height="match_parent"
+            android:id="@+id/layout1">
+
+            <!--region Toolbar Region-->
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appBarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:gravity="top">
+
+                    <LinearLayout
+                        android:id="@+id/originalToolbar"
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/btn_back"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_centerVertical="true"
+                            android:background="@drawable/ic_arrow_back"
+                            android:backgroundTint="@color/white"/>
+
+                        <TextView
+                            android:id="@+id/txt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="Product Category"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="18dp"
+                            android:layout_marginLeft="15dp"
+                            android:layout_toRightOf="@+id/btn_openDrawer" />
+
+
+                    </LinearLayout>
+
+                </androidx.appcompat.widget.Toolbar>
+
+
+            </com.google.android.material.appbar.AppBarLayout>
+            <!--endregion-->
 
             <LinearLayout
-                android:id="@+id/originalToolbar"
+                android:id="@+id/ll_name_hierarchy"
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_height="match_parent">
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_10"
+                android:layout_marginBottom="@dimen/padding_10"
+                android:visibility="gone">
 
                 <ImageView
-                    android:id="@+id/btn_back"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/ic_arrow_back"
-                    android:backgroundTint="@color/white"/>
+                    android:id="@+id/btn_back1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/padding_10"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/ic_baseline_arrow_forward_ios_24" />
 
                 <TextView
-                    android:id="@+id/txt"
-                    android:layout_width="match_parent"
+                    android:id="@+id/tv_hierarchy"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="Product Category"
-                    android:textColor="@color/white"
+                    android:text="Product"
+                    android:textColor="@color/black"
                     android:textStyle="bold"
                     android:textSize="18dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/btn_openDrawer" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_categoriesname"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:ignore="MissingConstraints"
+                    android:layout_marginLeft="@dimen/padding_10"
+
+                    />
 
 
             </LinearLayout>
 
-        </androidx.appcompat.widget.Toolbar>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_categories"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                tools:ignore="MissingConstraints"
+                android:layout_marginTop="@dimen/padding_10"
+                android:layout_below="@id/appBarLayout"
+                android:layout_above="@+id/layout2"
+                />
 
 
-    </com.google.android.material.appbar.AppBarLayout>
-    <!--endregion-->
 
-    <LinearLayout
-        android:id="@+id/ll_name_hierarchy"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_gravity="center_vertical"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/padding_10"
-        android:layout_marginBottom="@dimen/padding_10">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:id="@+id/layout2"
+                android:visibility="visible">
 
-        <ImageView
-            android:id="@+id/btn_back1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/padding_10"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/ic_baseline_arrow_forward_ios_24" />
+                <Spinner
+                    android:id="@+id/spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_toLeftOf="@+id/btn_next"
+                    android:layout_toRightOf="@+id/btn_goback"
+                    />
 
-        <TextView
-            android:id="@+id/tv_hierarchy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="Product"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="18dp"
-            android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@+id/btn_openDrawer" />
+                <ImageView
+                    android:id="@+id/btn_goback"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/padding_10"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/ic_baseline_skip_previous_24" />
 
 
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/btn_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/padding_10"
+                    android:layout_gravity="center_vertical"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/ic_baseline_skip_next_24" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_categories"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="MissingConstraints"
-        android:layout_gravity="center_vertical"/>
 
-</LinearLayout>
+            </RelativeLayout>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
 
 </layout>

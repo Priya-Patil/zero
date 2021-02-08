@@ -220,21 +220,7 @@ public class Utilities {
     }
 
 
-
-//    public static void sendIntent(Context context, String action) {
-//        final Intent intent = new Intent(context, MusicService.class);
-//        intent.setAction(action);
-//        context.startService(intent);
-//    }
-//
-//    public static void sendIntent(Context context, String action, Bundle b) {
-//        final Intent intent = new Intent(context, MusicService.class);
-//        intent.putExtras(b);
-//        intent.setAction(action);
-//        context.startService(intent);
-//    }
-
-      public static String getCurrentMonthFirstDate(){
+   public static String getCurrentMonthFirstDate(){
     Calendar c = Calendar.getInstance();
     c.set(Calendar.DAY_OF_MONTH, 1);
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");

@@ -10,7 +10,7 @@ import retrofit2.http.GET;
 public interface ProductGroupsApi {
 
 
-    @GET("products/group/")
+    @GET("products/group")
     Call<ProductGroupsResponse> getproductGroups (
         );
 }

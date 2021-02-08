@@ -22,6 +22,7 @@ import com.m90.zero.home.brands.model.BrandsListResponse;
 import com.m90.zero.home.model.BrandsDetailsResponse;
 import com.m90.zero.home.model.ProductGroupsDetailsResponse;
 import com.m90.zero.retrofit.RetrofitClientInstance;
+import com.m90.zero.utils.Utilities;
 
 import java.util.ArrayList;
 
@@ -62,10 +63,11 @@ public class BrandsActivity extends AppCompatActivity implements View.OnClickLis
 
     void getBrands(int brandsId) {
 
+        if (Utilities.isNetworkAvailable(activity)){
         BrandsApi brandsApi  = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(BrandsApi.class);
 
-        brandsApi.getBrands("http://api.eurekatalents.in/api/products/brand/"+brandsId).
+        brandsApi.getBrands(RetrofitClientInstance.BASE_URL+"products/brand/"+brandsId).
                 enqueue(new Callback<BrandsListResponse>() {
 
                     @Override
@@ -95,6 +97,10 @@ public class BrandsActivity extends AppCompatActivity implements View.OnClickLis
 
                     }
                 });
+
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     void setBrands(ArrayList<BrandsDetailListResponce> productGroups)

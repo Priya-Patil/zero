@@ -20,12 +20,13 @@ import com.m90.zero.R;
 import com.m90.zero.home.model.ProductDetailsResponse;
 import com.m90.zero.home.model.ProductGroupsDetailsResponse;
 import com.m90.zero.home.viewmore.ViewMoreActivity;
+import com.m90.zero.utils.Utilities;
 
 import java.util.ArrayList;
 
 public class ProductGroupsAdapter extends RecyclerView.Adapter<ProductGroupsAdapter.MyViewHolder> {
 
-    private static final String TAG = "CategoryAdapter";
+    private static final String TAG = "ProductGroupsAdapter";
 
     private Activity mContext;
     ArrayList<ProductGroupsDetailsResponse> list;
@@ -69,16 +70,15 @@ public class ProductGroupsAdapter extends RecyclerView.Adapter<ProductGroupsAdap
         Log.e("vlistqq", list.toString());
         viewHolder.tv_category.setText(item.title);
 
-        setProductGroups(item.products,viewHolder.recyclerViewCourses);
+        setProductGroups(item.vendor,viewHolder.recyclerViewCourses);
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent send = new Intent(mContext, ViewMoreActivity.class);
-                Bundle b = new Bundle();
-                b.putSerializable("ProductGroupsDetailsResponse",item);
-                send.putExtras(b);
-                mContext.startActivity(send);
+                Log.e(TAG, "onClick: "+ item.vendor.get(0).vendor_id.get(0).id);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("ProductGroupsDetailsResponse",item);
+                bundle.putInt("vendorid",item.group_id);
+                Utilities.launchActivity(mContext,ViewMoreActivity.class,false,bundle);
             }
         });
         //viewHolder.img.setBackground(mContext.getResources().getDrawable(item.getImage_drawable()));

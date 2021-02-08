@@ -23,11 +23,12 @@
         <RelativeLayout
             android:id="@+id/rl_profile"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            >
 
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="170dp"
+                android:layout_height="180dp"
                 android:background="@color/red" />
 
             <LinearLayout
@@ -36,13 +37,15 @@
                 android:layout_height="wrap_content"
                 android:gravity="left"
                 android:layout_marginLeft="5dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                >
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/civ_profile_nav"
-                    android:layout_width="120dp"
+                    android:layout_width="175dp"
                     android:layout_height="90dp"
                     android:layout_marginTop="20dp"
+                    android:layout_gravity="left"
                     android:src="@drawable/avatar" />
 
                 <TextView
@@ -67,6 +70,22 @@
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="12sp" />
+
+            <TextView
+                    android:id="@+id/tv_shareCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_mobile_nav"
+                    android:textStyle="bold"
+                    android:drawableRight="@drawable/ic_share_option"
+                    android:drawableTint="@color/white"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:text="@string/search"
+                    android:visibility="gone"/>
+
+
 
             </LinearLayout>
 
@@ -367,6 +386,8 @@
                 android:textColor="@color/colorText"
                 android:textSize="12sp"
                 android:visibility="gone"/>
+
+
 
             <TextView
                 android:id="@+id/tv_helpcenter"

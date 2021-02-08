@@ -10,13 +10,13 @@ public class ProfileDetailsResponse {
     public ArrayList<ProfileAllDetailsResponse> profile;
 
     @SerializedName("downline")
-    public ArrayList<DownlineResponse> downline;
+    public int downline;
 
     @Override
     public String toString() {
         return "ProfileDetailsResponse{" +
                 "profile=" + profile +
-                ", downline=" + downline +
+                ", downline='" + downline + '\'' +
                 '}';
     }
 }

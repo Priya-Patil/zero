@@ -8,8 +8,7 @@ public class ProductGroupsResponse {
 
     @SerializedName("data")
     public ArrayList<ProductGroupsDetailsResponse> data;
-    @SerializedName("access_token")
-    public String access_token;
+
     @SerializedName("status")
     public int status;
     @SerializedName("message")
@@ -21,7 +20,6 @@ public class ProductGroupsResponse {
     public String toString() {
         return "ProductGroupsResponse{" +
                 "data=" + data +
-                ", access_token='" + access_token + '\'' +
                 ", status=" + status +
                 ", message='" + message + '\'' +
                 ", content_type='" + content_type + '\'' +

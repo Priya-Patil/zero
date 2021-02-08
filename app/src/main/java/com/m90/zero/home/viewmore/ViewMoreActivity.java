@@ -26,6 +26,7 @@ import com.m90.zero.home.viewmore.api.ViewMoreApi;
 import com.m90.zero.home.viewmore.model.ViewMoreDetailResponce;
 import com.m90.zero.home.viewmore.model.ViewMoreResponse;
 import com.m90.zero.retrofit.RetrofitClientInstance;
+import com.m90.zero.utils.Utilities;
 
 import java.util.ArrayList;
 
@@ -45,6 +46,7 @@ public class ViewMoreActivity extends AppCompatActivity implements View.OnClickL
     ProductGroupsDetailsResponse viewMoreResponse;
     ViewMoreAdapter viewMoreAdapter;
     ProgressDialog progressDialog;
+    int vendorid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,40 +56,47 @@ public class ViewMoreActivity extends AppCompatActivity implements View.OnClickL
         activity = ViewMoreActivity.this;
         progressDialog = new ProgressDialog(activity);
 
-        viewMoreResponse = (ProductGroupsDetailsResponse) getIntent().getSerializableExtra("ProductGroupsDetailsResponse");
+        viewMoreResponse =  getIntent().getParcelableExtra("ProductGroupsDetailsResponse");
+        vendorid=getIntent().getIntExtra("vendorid",0);
+        Log.e( "onCreate: ", String.valueOf(vendorid));
 
         if (viewMoreResponse!=null) {
-            productGroupId = viewMoreResponse.group_id; //2;
-            Log.e(TAG, "onCreate: " + productGroupId);
+            productGroupId = vendorid;
+            Log.e(TAG, "onCreate: " + productGroupId +" "+viewMoreResponse.title);
+            binding.tvTitle.setText(viewMoreResponse.title);
             getProductGroups(productGroupId);
         }else
         {
             Toast.makeText(activity,"Data Not Found",Toast.LENGTH_SHORT).show();
         }
         binding.btnOpenDrawer.setOnClickListener(this);
-
     }
 
 
     void getProductGroups(int productGroupId) {
 
+        if (Utilities.isNetworkAvailable(activity)){
         progressDialog.setMessage("Please wait..");
         progressDialog.setCancelable(false);
         progressDialog.show();
         ViewMoreApi viewMoreApi  = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(ViewMoreApi.class);
 
-        viewMoreApi.getViewMore("http://api.eurekatalents.in/api/products/group/all/"+productGroupId).
+        viewMoreApi.getViewMore(RetrofitClientInstance.BASE_URL+"products/group/all/"+productGroupId).
                 enqueue(new Callback<ViewMoreResponse>() {
 
                     @Override
                     public void onResponse(Call<ViewMoreResponse> call, Response<ViewMoreResponse> response) {
 
+
                         ViewMoreResponse productGroupsResponse = response.body();
+
+                       // Log.e(TAG, "onResponse: "+productGroupsResponse.toString() );
+
                         if (productGroupsResponse !=null) {
                             if (productGroupsResponse.status == 200) {
                                 Log.e("onResponse: ", productGroupsResponse.toString());
-                                setProductGroups(productGroupsResponse.data.get(0).products);
+                                setProductGroups(productGroupsResponse.data.get(0).vendor);
                                 //  Toast.makeText(activity, "" + aboutResponce.message, Toast.LENGTH_SHORT).show();
                                 progressDialog.dismiss();
 
@@ -97,7 +106,6 @@ public class ViewMoreActivity extends AppCompatActivity implements View.OnClickL
                                 progressDialog.dismiss();
                             }
                         }
-
 
                     }
 
@@ -109,6 +117,9 @@ public class ViewMoreActivity extends AppCompatActivity implements View.OnClickL
 
                     }
                 });
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     void setProductGroups(ArrayList<ProductDetailsResponse> productGroups)
@@ -118,7 +129,7 @@ public class ViewMoreActivity extends AppCompatActivity implements View.OnClickL
 
         //LinearLayoutManager glm = new LinearLayoutManager(getApplicationContext());
         binding.recyclerViewCourses.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,
-                true));
+                false));
 
         binding.recyclerViewCourses.setItemAnimator(new DefaultItemAnimator());
         //mRecyclerViewCourses.setHasFixedSize(true);

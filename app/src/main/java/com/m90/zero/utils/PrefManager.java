@@ -19,6 +19,7 @@ public class PrefManager {
     private static final String Mobile = "mobile";
     private static final String Cityid = "cityid";
     private static final String faqOnOff = "faqOnOff";
+    private static final String cartCount = "cartCount";
 
 
     public PrefManager(Context context) {
@@ -55,6 +56,16 @@ public class PrefManager {
 
     public String getFaqOnOff() {
         return pref.getString(faqOnOff, null);
+    }
+
+
+    public void setCartCount(int S) {
+        editor.putInt(cartCount, S);
+        editor.commit();
+    }
+
+    public Integer getCartCount() {
+        return pref.getInt(cartCount, 0);
     }
 
 

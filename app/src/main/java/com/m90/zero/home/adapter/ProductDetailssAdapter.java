@@ -1,7 +1,9 @@
 package com.m90.zero.home.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import com.m90.zero.R;
 import com.m90.zero.home.HomeActivity;
 import com.m90.zero.home.model.ProductDetailsResponse;
 import com.m90.zero.productdetail.ProductDetailsActivity;
+import com.m90.zero.retrofit.RetrofitClientInstance;
 import com.m90.zero.utils.Utilities;
 import com.squareup.picasso.Picasso;
 
@@ -25,7 +28,7 @@ import java.util.ArrayList;
 
 public class ProductDetailssAdapter extends RecyclerView.Adapter<ProductDetailssAdapter.MyViewHolder> {
 
-    private static final String TAG = "TopRatedProductsAdapter";
+    private static final String TAG = "ProductDetailssAdapter";
 
     private Activity mContext;
     ArrayList<ProductDetailsResponse> list;
@@ -63,38 +66,45 @@ public class ProductDetailssAdapter extends RecyclerView.Adapter<ProductDetailss
         final ProductDetailsResponse item = list.get(i);
 
         Log.e("vlist", list.toString());
-        viewHolder.tv_title.setText(item.name);
-        viewHolder.tv_desc.setText(item.short_details);
-        viewHolder.tv_rate.setText(String.valueOf(item.rating));
-        viewHolder.tv_dis_amount.setVisibility(View.GONE);
+        viewHolder.tv_title.setText(item.vp_short.get(0).productData.product_name);
+        viewHolder.tv_desc.setText(item.vp_short.get(0).productData.short_details);
 
-        if (item.unit_price.equals(item.discount_price)) {
+        try {
+            //viewHolder.tv_rate.setText(String.format("%.2f",item.productPricing.unit_price));
             viewHolder.tv_dis_amount.setVisibility(View.GONE);
-            viewHolder.tv_amount.setText(HomeActivity.currency + String.valueOf(item.unit_price));
-        }else {
-            viewHolder.tv_amount.setText(HomeActivity.currency + String.valueOf(item.unit_price));
-            viewHolder.tv_dis_amount.setVisibility(View.VISIBLE);
-            viewHolder.tv_dis_amount.setText("( "+HomeActivity.currency + String.valueOf(item.discount_price)+" )");
-            viewHolder.tv_amount.setPaintFlags(viewHolder.tv_amount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+
+            if (item.productPricing!=null) {
+                if (item.productPricing.unit_price.equals(item.productPricing.discount_price)) {
+                    viewHolder.tv_dis_amount.setVisibility(View.GONE);
+                    viewHolder.tv_amount.setText(HomeActivity.currency + item.productPricing.unit_price);
+                } else {
+                    viewHolder.tv_amount.setText(HomeActivity.currency + String.valueOf(String.format("%.2f",Double.parseDouble(item.productPricing.unit_price))));
+                    viewHolder.tv_dis_amount.setVisibility(View.VISIBLE);
+                    viewHolder.tv_dis_amount.setText( HomeActivity.currency + String.valueOf(String.format("%.2f", Double.parseDouble(item.productPricing.discount_price))));
+                    viewHolder.tv_amount.setPaintFlags(viewHolder.tv_amount.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+            }
+        }catch (Exception e)
+        {
+            Log.e(TAG, "onBindViewHolder: "+e.getMessage());
         }
 
-        String phrase = item.pictures;
+        String phrase = item.productImages.get(0).image_path;
         String[] dateSplit = phrase.split(";");
         for (String singleImg : dateSplit) {
-            Picasso.with(mContext).load("http://api.eurekatalents.in/"+singleImg).into(viewHolder.img);
+            Picasso.with(mContext).load(RetrofitClientInstance.BASE_URL_IMG +singleImg).into(viewHolder.img);
+            //Picasso.with(mContext).load("http://api.eurekatalents.in/"+singleImg).into(viewHolder.img);
             Log.e(TAG, "onBindViewHolder: "+singleImg);
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                 /* ProductSubCategoryActivity.type = 1;
-                Intent send = new Intent(mContext, ProductSubCategoryActivity.class);
-                Bundle b = new Bundle();
-                //b.putSerializable("ProductGroupsDetailsResponse",item);
-                //send.putExtras(b);
-                mContext.startActivity(send);*/
-                Utilities.launchActivity(mContext, ProductDetailsActivity.class,false);
+               //   ProductSubCategoryActivity.type = 1;
+                Bundle bundle =  new Bundle();
+                bundle.putString("product_id", String.valueOf(item.vendor_id.get(0).id));
+                bundle.putString("product_name",item.vp_short.get(0).productData.product_name);
+                Utilities.launchActivity(mContext, ProductDetailsActivity.class,false,bundle);
             }
         });
        // viewHolder.img.setBackground(mContext.getResources().getDrawable(item.getImage_drawable()));

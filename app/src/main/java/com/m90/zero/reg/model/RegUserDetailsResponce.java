@@ -12,6 +12,13 @@ public  class RegUserDetailsResponce {
     @SerializedName("name")
     public String name;
 
+    @SerializedName("avatar")
+    public String avatar;
+
+    @SerializedName("status")
+    public String status;
+
+
     @SerializedName("updated_at")
     public String updated_at;
     @SerializedName("created_at")
@@ -30,10 +37,12 @@ public  class RegUserDetailsResponce {
                 "mobile_number='" + mobile_number + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", status='" + status + '\'' +
                 ", updated_at='" + updated_at + '\'' +
                 ", created_at='" + created_at + '\'' +
                 ", id=" + id +
-                ", amount=" + amount +
+                ", amount='" + amount + '\'' +
                 ", txnid='" + txnid + '\'' +
                 '}';
     }

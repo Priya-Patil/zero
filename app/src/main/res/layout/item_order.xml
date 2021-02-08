@@ -26,10 +26,11 @@
 
                 <ImageView
                     android:id="@+id/iv_img"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
                     android:src="@drawable/avatar"
-                    android:layout_alignParentLeft="true"/>
+                    android:layout_alignParentLeft="true"
+                    android:layout_above="@+id/layout1"/>
 
                 <LinearLayout
                     android:id="@+id/ll_info"
@@ -45,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:textStyle="normal"
-                    android:id="@+id/tv_que"
+                    android:id="@+id/tv_title"
                     android:layout_marginRight="4dp"
                     android:layout_marginLeft="15dp"
                     android:textColor="@color/black"
@@ -66,30 +67,29 @@
                         android:visibility="visible"
                         android:text="566"/>
 
-
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textStyle="normal"
+                        android:id="@+id/tv_quantity"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginLeft="15dp"
+                        android:textColor="@color/black"
+                        android:textSize="12dp"
+                        android:visibility="visible"
+                        android:text="Appros delivery time :"/>
                     <View
                     android:id="@+id/view"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/padding_10"
-                    android:layout_marginBottom="@dimen/padding_10"
                     android:layout_marginLeft="@dimen/padding_10"
                     android:layout_marginRight="@dimen/padding_10"
                     android:background="@color/darker_gray"
                     android:visibility="visible"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:textStyle="normal"
-                    android:id="@+id/tv_deliveryTime"
-                    android:layout_marginRight="4dp"
-                    android:layout_marginLeft="15dp"
-                    android:textColor="@color/black"
-                    android:textSize="12dp"
-                    android:visibility="visible"
-                    android:text="Appros delivery time :"/>
+
 
                     <TextView
                         android:layout_width="match_parent"
@@ -101,7 +101,7 @@
                         android:layout_marginLeft="15dp"
                         android:textColor="@color/black"
                         android:textSize="14dp"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:text="Processed from seller"/>
 
                      <TextView
@@ -126,7 +126,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="@dimen/padding_10"
-                    android:layout_below="@id/ll_info">
+                    android:layout_below="@id/ll_info"
+                    android:id="@+id/layout1">
 
                     <Button
                         android:id="@+id/btn_track"

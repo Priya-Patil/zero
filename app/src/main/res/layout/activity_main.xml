@@ -174,7 +174,16 @@
                                 </LinearLayout>
 
 
-
+                                <TextView
+                                    android:id="@+id/btn_home"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/black"
+                                    android:text="Home"
+                                    android:textSize="12sp"
+                                    android:gravity="center_horizontal"
+                                    android:layout_marginLeft="12dp"
+                                    />
 
                             </LinearLayout>
 

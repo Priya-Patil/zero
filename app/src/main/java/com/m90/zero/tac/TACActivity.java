@@ -17,6 +17,7 @@ import com.m90.zero.about.model.AboutResponce;
 import com.m90.zero.databinding.ActivityAboutBinding;
 import com.m90.zero.retrofit.RetrofitClientInstance;
 import com.m90.zero.tac.api.TACApi;
+import com.m90.zero.utils.Utilities;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,14 +43,15 @@ public class TACActivity extends AppCompatActivity implements View.OnClickListen
 
     void getTAC() {
 
-        TACApi tacApi  = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(TACApi.class);
+        if (Utilities.isNetworkAvailable(activity)){
+            TACApi tacApi  = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(TACApi.class);
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
-        progressDialog.show();
-        tacApi.getTAC().
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            // pbLoading.setProgressStyle(R.id.abbreviationsBar);
+            progressDialog.show();
+            tacApi.getTAC().
                 enqueue(new Callback<AboutResponce>() {
 
                     @Override
@@ -83,7 +85,9 @@ public class TACActivity extends AppCompatActivity implements View.OnClickListen
                     }
                 });
 
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

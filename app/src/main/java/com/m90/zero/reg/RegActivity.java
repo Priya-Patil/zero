@@ -90,6 +90,7 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
         binding.btnReg.setOnClickListener(this);
         binding.btnCode.setOnClickListener(this);
         binding.btnLogin.setOnClickListener(this);
+        binding.btnHome.setOnClickListener(this);
 
         format = new DecimalFormat("0.#");
 
@@ -113,10 +114,6 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
             }
         });
 
-   /*     addUser("ppp","jeijoijf","8669176540",
-                "priyapalaskar545@gmail.com","123456","123456",
-                "ZEEERO379988");
-*/
     }
 
     @Override
@@ -162,19 +159,27 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                 Utilities.launchActivity(activity, LoginActivity.class,true);
 
                 break;
+
+             case R.id.btn_home:
+                Utilities.launchActivity(activity, HomeActivity.class,true);
+
+                break;
+
+
         }
     }
 
     void getcode() {
 
-        RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(RegApi.class);
+        if (Utilities.isNetworkAvailable(activity)) {
+            RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(RegApi.class);
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
-        progressDialog.show();
-        regApi.getCode().
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            // pbLoading.setProgressStyle(R.id.abbreviationsBar);
+            progressDialog.show();
+            regApi.getCode().
                 enqueue(new Callback<CodeResponce>() {
 
                     @Override
@@ -198,13 +203,11 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
 
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
 
     }
-
-    //http://api.eurekatalents.in/api/customer/register?first_name=Manish&last_name=Patil
-    // &mobile_number=9823017728&email=kalpana.kambl4@gmail.com&password=123456&password_confirmation=123456&
-    // sponsor_by=ZEEERO379988
 
     void addUser(String first_name, String last_name, String mobile_number,String email,
                  String password, String password_confirmation, String sponsor_by) {
@@ -213,19 +216,15 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
         customer_email_id=binding.etEmail.getText().toString();
         customer_phone=binding.etMobile.getText().toString();
 
-     /*   customer_firstName="priya";
-        customer_email_id="priyapalaskar545@gmail.com";
-        customer_phone="9172887936";*/
-        // customers_unique_id= 1;
+        if (Utilities.isNetworkAvailable(activity)){
+             RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(RegApi.class);
 
-        RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(RegApi.class);
-
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
-        progressDialog.show();
-        regApi.addUser(first_name,last_name,mobile_number,email,password,password_confirmation, sponsor_by).
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            // pbLoading.setProgressStyle(R.id.abbreviationsBar);
+            progressDialog.show();
+            regApi.addUser(first_name,last_name,mobile_number,email,password,password_confirmation, sponsor_by).
                 enqueue(new Callback<RegResponce>() {
 
                     @Override
@@ -237,9 +236,14 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
                             customers_unique_id= regResponce.data.id;
 
                             userid=regResponce.data.id;
+                            Utilities.saveUserData(activity,"userid", String.valueOf(regResponce.data.id));
+                            Utilities.saveUserData(activity,"name",regResponce.data.name);
+                            Utilities.saveUserData(activity,"profilePic",regResponce.data.avatar);
+                            Utilities.saveUserData(activity, "mobileNumber", regResponce.data.mobile_number);
+
                             // merchant_payment_amount= regResponce.data.amount;
                             merchant_payment_amount= Double.valueOf(regResponce.data.amount);
-
+                            Log.e("RegActivity", "onResponse: "+regResponce.toString() );
                             //System.out.println(format.format(price));
 
                             String hash = merchant_key + "|" + merchant_trxnId + "|" + merchant_payment_amount + "|" +
@@ -277,7 +281,9 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
 
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     void payment(String merchant_trxnId, Double merchant_payment_amount, String merchant_productInfo,
@@ -386,6 +392,7 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
             }
         }
     }
+
     void hashgeneration(String hash1) {
         MessageDigest md = null;
         try {
@@ -410,15 +417,16 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
 
     void addUserAfterPayment(String userid, String transid, String status) {
 
-        RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(RegApi.class);
+        if (Utilities.isNetworkAvailable(activity)){
+            RegApi regApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(RegApi.class);
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        // pbLoading.setProgressStyle(R.id.abbreviationsBar);
-        progressDialog.show();
-        //http://api.eurekatalents.in/api/customer/activation/27/APP1223073831/complete
-        regApi.addUserAfterPayment("http://api.eurekatalents.in/api/customer/activation/"+userid+"/"+transid+"/"+status).
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            // pbLoading.setProgressStyle(R.id.abbreviationsBar);
+            progressDialog.show();
+            //http://api.eurekatalents.in/api/customer/activation/27/APP1223073831/complete
+            regApi.addUserAfterPayment(RetrofitClientInstance.BASE_URL+"customer/activation/"+userid+"/"+transid+"/"+status).
                 enqueue(new Callback<AfterPaymentRegResponce>() {
 
                     @Override
@@ -449,7 +457,9 @@ public class RegActivity extends AppCompatActivity implements View.OnClickListen
 
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

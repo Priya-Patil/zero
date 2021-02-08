@@ -7,17 +7,21 @@ import java.util.ArrayList;
 
 public class ViewMoreDetailResponce {
 
+    @SerializedName("id")
+    public int group_id;
+
     @SerializedName("title")
     public String title;
 
-    @SerializedName("products")
-    public ArrayList<ProductDetailsResponse> products;
+    @SerializedName("vendor")
+    public ArrayList<ProductDetailsResponse> vendor;
 
     @Override
     public String toString() {
         return "ViewMoreDetailResponce{" +
-                "title='" + title + '\'' +
-                ", products=" + products +
+                "group_id=" + group_id +
+                ", title='" + title + '\'' +
+                ", vendor=" + vendor +
                 '}';
     }
 }

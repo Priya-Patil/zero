@@ -35,6 +35,11 @@
     <string name="Passwordupdated">Password Updated</string>
     <string name="message2">Your identity has been verified! \n set your new password</string>
     <string name="message3">Your password has been updated!</string>
+    <string name="downline">Downline</string>
+    <string name="continue_shopping">Continue Shopping</string>
+    <string name="empty_wishlist">Your Wishlist is Empty !</string>
+    <string name="empty_cart">Your Cart is Empty !</string>
+    <string name="check_internet">Please Check Your Internet Connection</string>
 
     <string-array name="sort">
         <item> Sort </item>

@@ -41,19 +41,17 @@ public class ProfileAllDetailsResponse {
     public String updated_at;
 
     @SerializedName("user")
-    public UserDetailsResponce user;
-
-    @SerializedName("avatar")
-    public AvatarResponse avatar;
+    public ProfileUserResponse user;
 
     @SerializedName("referal")
     public ReferalResponse referal;
 
     @SerializedName("sponsor_amount")
-    public ArrayList<String> sponsor_amount;
+    public ArrayList<WalletAmountResponse> sponsor_amount;
 
     @SerializedName("wallet_amount")
     public ArrayList<WalletAmountResponse> wallet_amount;
+
 
     @Override
     public String toString() {
@@ -70,7 +68,6 @@ public class ProfileAllDetailsResponse {
                 ", created_at='" + created_at + '\'' +
                 ", updated_at='" + updated_at + '\'' +
                 ", user=" + user +
-                ", avatar=" + avatar +
                 ", referal=" + referal +
                 ", sponsor_amount=" + sponsor_amount +
                 ", wallet_amount=" + wallet_amount +

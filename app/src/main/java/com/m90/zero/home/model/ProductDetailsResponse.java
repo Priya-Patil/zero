@@ -3,56 +3,38 @@ package com.m90.zero.home.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class ProductDetailsResponse implements Serializable {
 
-    @SerializedName("id")
-    public int id;
+    @SerializedName("product_group_id")
+    public String product_group_id;
 
-    @SerializedName("category_id")
-    public int category_id;
+    @SerializedName("product_id")
+    public String product_id;
 
-  @SerializedName("category_name")
-    public String category_name;
+    @SerializedName("vp_short")
+    public ArrayList<ProductVpShortDetailsResponse> vp_short;
 
+    @SerializedName("vendor_id")
+    public ArrayList<VendorIdResponse> vendor_id;
 
-    @SerializedName("name")
-    public String name;
+    @SerializedName("pricing")
+    public ProductPricing productPricing;
 
-  @SerializedName("short_details")
-    public String short_details;
-
- @SerializedName("pictures")
-    public String pictures;
-
- @SerializedName("rating")
-    public String rating;
-
-@SerializedName("unit_price")
-    public String unit_price;
-
-@SerializedName("discount_price")
-    public String discount_price;
-
-@SerializedName("tag")
-    public String tag;
-
+    @SerializedName("images")
+    public ArrayList<ProductImages> productImages;
 
     @Override
     public String toString() {
         return "ProductDetailsResponse{" +
-                "id=" + id +
-                ", category_id=" + category_id +
-                ", category_name='" + category_name + '\'' +
-                ", name='" + name + '\'' +
-                ", short_details='" + short_details + '\'' +
-                ", pictures='" + pictures + '\'' +
-                ", rating='" + rating + '\'' +
-                ", unit_price='" + unit_price + '\'' +
-                ", discount_price='" + discount_price + '\'' +
-                ", tag='" + tag + '\'' +
+                "product_group_id='" + product_group_id + '\'' +
+                ", product_id='" + product_id + '\'' +
+                ", vp_short=" + vp_short +
+                ", vendor_id=" + vendor_id +
+                ", productPricing=" + productPricing +
+                ", productImages=" + productImages +
                 '}';
     }
-
 
 }

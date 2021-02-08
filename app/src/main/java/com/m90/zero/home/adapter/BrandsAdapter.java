@@ -63,9 +63,9 @@ public class BrandsAdapter extends RecyclerView.Adapter<BrandsAdapter.MyViewHold
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
+             /*   Bundle bundle = new Bundle();
                 bundle.putInt("brandsId",item.id);
-                Utilities.launchActivity(mContext, BrandsActivity.class,false,bundle);
+                Utilities.launchActivity(mContext, BrandsActivity.class,false,bundle);*/
             }
         });
         //viewHolder.img.setBackground(mContext.getResources().getDrawable(item.getImage_drawable()));

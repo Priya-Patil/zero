@@ -1,7 +1,9 @@
 package com.m90.zero.profile;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.m90.zero.R;
 import com.m90.zero.databinding.ActivityWalletBalanceTableBinding;
+import com.m90.zero.login.LoginActivity;
 import com.m90.zero.profile.adapter.SponsorTableAdapter;
 import com.m90.zero.profile.api.SponsorApi;
 import com.m90.zero.profile.model.SponsorResponse;
@@ -66,6 +69,8 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
     String[] sort = { "Sort","Date", "Sponsor Code", "Credit", "Debit", "Balance"};
 
     int userid = 0;
+    static String accessToken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,10 +80,12 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
         activity = SponsorTableActivity.this;
         progressDialog = new ProgressDialog(activity);
 
+        accessToken = Utilities.getSavedUserData(activity,"accesstoken");
+
         Log.e(TAG,"userID "+ Utilities.getSavedUserData(activity,"userid"));
         userid = Integer.parseInt(Utilities.getSavedUserData(activity,"userid"));
 
-        getSponsorBalance(userid);
+        getSponsorBalance(userid,accessToken);
 
         binding.ivMenu.setOnClickListener(this);
         binding.btnSearch.setOnClickListener(this);
@@ -124,8 +131,9 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
         sponsorTableAdapter.setFilter(temp);
     }
 
-    void getSponsorBalance(int user_id) {
+    void getSponsorBalance(int user_id,String accessToken) {
 
+        if (Utilities.isNetworkAvailable(activity)){
         SponsorApi sponsorApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(SponsorApi.class);
 
@@ -133,7 +141,8 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        sponsorApi.getSponsorBalance("http://api.eurekatalents.in/api/customer/sponsor-balance/"+user_id).
+        sponsorApi.getSponsorBalance("Bearer "+accessToken,RetrofitClientInstance.BASE_URL+"customer/sponsor-balance/"+user_id).
+        //sponsorApi.getSponsorBalance("http://api.eurekatalents.in/api/customer/sponsor-balance/"+user_id).
                 enqueue(new Callback<WalletResponse>() {
                     @Override
                     public void onResponse(Call<WalletResponse> call, Response<WalletResponse> response) {
@@ -158,9 +167,13 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
                                 attachDescResponse(walletResponse.data);
                             }
 
-                        } else {
-                            Toast.makeText(activity, "" + walletResponse.message, Toast.LENGTH_SHORT).show();
-                            Log.e("onResponse: ", " " + walletResponse.message);
+                        }
+
+                        if (walletResponse.status == 401)
+                        {
+                            Log.e(TAG,"onResponsezz: " + walletResponse.message);
+                            authenticationDialog(walletResponse.message);
+                            //Toast.makeText(activity, "" + profileResponse.message , Toast.LENGTH_SHORT).show();
                         }
                         progressDialog.dismiss();
 
@@ -173,7 +186,9 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
                         Log.e("errorchk", t.getMessage());
                     }
                 });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -493,14 +508,14 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
 
             case R.id.iv_asc:
                 sortType = "asc";
-                getSponsorBalance(userid);
+                getSponsorBalance(userid,accessToken);
                 binding.ivAsc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_north_red_24));
                 binding.ivDesc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_south_24));
                 break;
 
             case R.id.iv_desc:
                 sortType = "dsc";
-                getSponsorBalance(userid);
+                getSponsorBalance(userid,accessToken);
                 binding.ivDesc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_south_red_24));
                 binding.ivAsc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_north_24));
                 break;
@@ -512,6 +527,24 @@ public class SponsorTableActivity extends AppCompatActivity implements View.OnCl
 
 
         }
+    }
+
+    private void authenticationDialog(String errorMessage) {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
+        mBuilder.setTitle(errorMessage);
+        mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+
+                dialog.dismiss();
+                Utilities.launchActivity(activity, LoginActivity.class,true);
+
+            }
+        });
+
+        AlertDialog mDialog = mBuilder.create();
+        mDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_background);
+        mDialog.show();
     }
 
     @Override

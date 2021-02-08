@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 
 import com.m90.zero.R;
 import com.m90.zero.databinding.ActivityWalletBalanceTableBinding;
+import com.m90.zero.login.LoginActivity;
 import com.m90.zero.profile.adapter.WalletTableAdapter;
 import com.m90.zero.profile.api.WalletBalanceApi;
 import com.m90.zero.profile.model.SponsorResponse;
@@ -64,6 +67,7 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
 
 
     int userid = 0;
+    static String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +76,12 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
         binding = DataBindingUtil.setContentView(this, R.layout.activity_wallet_balance_table);
         activity = WalletBalanceTableActivity.this;
         progressDialog = new ProgressDialog(activity);
+        accessToken = Utilities.getSavedUserData(activity,"accesstoken");
 
         Log.e(TAG,"userID "+ Utilities.getSavedUserData(activity,"userid"));
         userid = Integer.parseInt(Utilities.getSavedUserData(activity,"userid"));
 
-        getWalletBalance(userid);
+        getWalletBalance(userid,accessToken);
 
         binding.ivMenu.setOnClickListener(this);
         binding.btnSearch.setOnClickListener(this);
@@ -104,11 +109,11 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
 
             }
         });
-
     }
 
-    void getWalletBalance(int user_id) {
+    void getWalletBalance(int user_id,String accessToken) {
 
+        if (Utilities.isNetworkAvailable(activity)) {
         WalletBalanceApi walletBalanceApi = RetrofitClientInstance.getRetrofitInstanceServer().
                 create(WalletBalanceApi.class);
 
@@ -116,7 +121,8 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        walletBalanceApi.getwallet_balance("http://api.eurekatalents.in/api/customer/wallet-balance/"+user_id).enqueue(new Callback<WalletResponse>() {
+        walletBalanceApi.getwallet_balance("Bearer "+accessToken,RetrofitClientInstance.BASE_URL+"customer/wallet-balance/"+user_id).enqueue(new Callback<WalletResponse>() {
+        //walletBalanceApi.getwallet_balance("http://api.eurekatalents.in/api/customer/wallet-balance/"+user_id).enqueue(new Callback<WalletResponse>() {
             @Override
             public void onResponse(Call<WalletResponse> call, Response<WalletResponse> response) {
                 WalletResponse walletResponse = response.body();
@@ -138,9 +144,13 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
                         attachDescResponse(walletResponse.data);
                     }
 
-                } else {
-                    Toast.makeText(activity, "" + walletResponse.message, Toast.LENGTH_SHORT).show();
-                    Log.e("onResponse: ", " " + walletResponse.message);
+                }
+
+                if (walletResponse.status == 401)
+                {
+                    Log.e(TAG,"onResponsezz: " + walletResponse.message);
+                    authenticationDialog(walletResponse.message);
+                    //Toast.makeText(activity, "" + profileResponse.message , Toast.LENGTH_SHORT).show();
                 }
                 progressDialog.dismiss();
 
@@ -155,7 +165,9 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
 
             }
         });
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void attachResponse(ArrayList<WalletDetailsResponse> data) {
@@ -441,14 +453,14 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
 
             case R.id.iv_asc:
                 sortType = "asc";
-                getWalletBalance(userid);
+                getWalletBalance(userid,accessToken);
                 binding.ivAsc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_north_red_24));
                 binding.ivDesc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_south_24));
                 break;
 
             case R.id.iv_desc:
                 sortType = "dsc";
-                getWalletBalance(userid);
+                getWalletBalance(userid,accessToken);
                 binding.ivDesc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_south_red_24));
                 binding.ivAsc.setBackground(activity.getResources().getDrawable(R.drawable.ic_baseline_north_24));
                 break;
@@ -457,6 +469,24 @@ public class WalletBalanceTableActivity extends AppCompatActivity implements Vie
                 onBackPressed();
                 break;
         }
+    }
+
+    private void authenticationDialog(String errorMessage) {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
+        mBuilder.setTitle(errorMessage);
+        mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+
+                dialog.dismiss();
+                Utilities.launchActivity(activity, LoginActivity.class,true);
+
+            }
+        });
+
+        AlertDialog mDialog = mBuilder.create();
+        mDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_background);
+        mDialog.show();
     }
 
     @Override

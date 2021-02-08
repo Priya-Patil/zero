@@ -14,9 +14,6 @@ import retrofit2.http.Url;
 
 public interface RegApi {
 
-    //http://api.eurekatalents.in/api/customer/register?first_name=Manish&last_name=Patil
-    // &mobile_number=9823017728&email=kalpana.kambl4@gmail.com&password=123456&password_confirmation=123456&
-    // sponsor_by=ZEEERO379988
 
     @FormUrlEncoded
     @POST("customer/register")
@@ -37,7 +34,6 @@ public interface RegApi {
             @Url String url
     );
 
-    //http://api.eurekatalents.in/api/customer/weaksp
     @GET("customer/weaksp")
     Call<CodeResponce> getCode (
             // lang: eng/mar

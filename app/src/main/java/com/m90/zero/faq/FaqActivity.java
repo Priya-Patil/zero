@@ -72,14 +72,15 @@ public class FaqActivity extends AppCompatActivity implements View.OnClickListen
 
     void getFaq() {
 
-        FaqApi faqApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(FaqApi.class);
+        if (Utilities.isNetworkAvailable(activity)){
+            FaqApi faqApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(FaqApi.class);
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-        faqApi.getFaq().enqueue(new Callback<FaqResponse>() {
+            faqApi.getFaq().enqueue(new Callback<FaqResponse>() {
 
                     @Override
                     public void onResponse(Call<FaqResponse> call, Response<FaqResponse> response) {
@@ -120,7 +121,9 @@ public class FaqActivity extends AppCompatActivity implements View.OnClickListen
                     }
                 });
 
-
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

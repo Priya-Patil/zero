@@ -32,9 +32,10 @@ import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
+import com.m90.zero.cart.CartActivity;
+import com.m90.zero.categorynew.NewAllCategoryActivity;
 import com.m90.zero.home.adapter.BrandsAdapter;
 import com.m90.zero.home.adapter.ProductGroupsAdapter;
-import com.m90.zero.home.allcategory.AllCategoryActivity;
 import com.m90.zero.home.api.BrandsApi;
 import com.m90.zero.home.api.ProductGroupsApi;
 import com.m90.zero.home.api.SliderApi;
@@ -44,6 +45,7 @@ import com.m90.zero.home.model.ProductGroupsDetailsResponse;
 import com.m90.zero.home.model.ProductGroupsResponse;
 import com.m90.zero.home.model.SliderDetails;
 import com.m90.zero.home.model.SliderResponse;
+import com.m90.zero.home.search.SearchActivity;
 import com.m90.zero.login.LoginActivity;
 import com.m90.zero.R;
 import com.m90.zero.faq.FaqActivity;
@@ -54,14 +56,17 @@ import com.m90.zero.home.api.CategoryApi;
 import com.m90.zero.home.model.CategoryDetailsResponse;
 import com.m90.zero.home.model.CategoryResponse;
 import com.m90.zero.home.model.HomeModel;
+import com.m90.zero.order.OrderHistoryActivity;
 import com.m90.zero.profile.ProfileActivity;
 import com.m90.zero.reg.RegActivity;
 import com.m90.zero.retrofit.RetrofitClientInstance;
 import com.m90.zero.splash.SplashActivity;
 import com.m90.zero.tac.TACActivity;
+import com.m90.zero.utils.PrefManager;
 import com.m90.zero.utils.SessionHelper;
 import com.m90.zero.utils.Utilities;
 import com.squareup.picasso.Picasso;
+import com.steelkiwi.library.view.BadgeHolderLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +80,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         BaseSliderView.OnSliderClickListener,
         ViewPagerEx.OnPageChangeListener {
 
+    public static String TAG = HomeActivity.class.getSimpleName();
     Activity activity;
     public static String currency = "₹";
     ProductDetailssAdapter dailyQuizAdapter;
@@ -128,17 +134,21 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private ScrollView mScrllDrawer;
     private DrawerLayout mDrlOpener;
     ImageView btn_openDrawer;
+    ImageView iv_cart;
+    ImageView iv_search;
     SessionHelper sessionHelper;
     public static RelativeLayout mRlProfileClick;
     ProgressDialog progressDialog;
+    PrefManager prefManager;
 
     CircleImageView civ_profile_nav;
     TextView tv_profile_name_nav;
     TextView tv_mobile_nav;
     TextView all_category;
-
+    TextView tv_shareCode;
 
     List<SliderDetails> sliderDetails;
+    BadgeHolderLayout badgeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,39 +156,46 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_home);
 
-        //binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         activity = HomeActivity.this;
+        prefManager = new PrefManager(activity);
         InitView();
-        //mRecyclerViewCourses.setNestedScrollingEnabled(false);
+        //23-01
         getCategory();
-        //setCity();
         getBrands();
-        //setLikes();
         slider();
         getProductGroups();
-
-
         mRlProfile.setVisibility(View.VISIBLE);
+
+        if (prefManager.getCartCount()!=null) {
+            Log.e(TAG, "onCreate: " + prefManager.getCartCount());
+        }
 
         if(sessionHelper.isLoggedIn())
         {//loginned
+            badgeLayout.setCountWithAnimation(prefManager.getCartCount());
+            mRlWishlist.setVisibility(View.VISIBLE);
+            mRlCart.setVisibility(View.VISIBLE);
             mRlOrders.setVisibility(View.VISIBLE);
             mRlProfileClick.setVisibility(View.VISIBLE);
             mTvExit.setVisibility(View.VISIBLE);
-           //http://api.eurekatalents.in/users/default.png
+            tv_shareCode.setVisibility(View.VISIBLE);
             tv_mobile_nav.setText(Utilities.getSavedUserData(activity,"mobileNumber"));
+            tv_shareCode.setText(Utilities.getSavedUserData(activity,"sponsorcode"));
             tv_profile_name_nav.setText(Utilities.getSavedUserData(activity,"name"));
-            //tv_mobile_nav.setText("http://api.eurekatalents.in/"+Utilities.getSavedUserData(activity,"profilePic"));
-            Picasso.with(activity).load("http://api.eurekatalents.in/"+
-                    Utilities.getSavedUserData(activity,"profilePic")).into(civ_profile_nav);
+            Picasso.with(activity).load(RetrofitClientInstance.BASE_URL_IMG +
+                    Utilities.getSavedUserData(activity, "profilePic")).into(civ_profile_nav);
 
-            Log.e("TAG", "onCreate: "+Utilities.getSavedUserData(activity,"profilePic") );
+            Log.e("TAG", "onCreate: " + RetrofitClientInstance.BASE_URL_IMG+Utilities.getSavedUserData(activity, "profilePic")+" "+
+                    Utilities.getSavedUserData(activity,"name"));
 
         }
+
         else {
-            //reg
+            badgeLayout.setCountWithAnimation(0);
             HomeActivity.mRlReg.setVisibility(View.VISIBLE);
             HomeActivity.mRlLogin.setVisibility(View.VISIBLE);
+            mRlWishlist.setVisibility(View.GONE);
+            mRlCart.setVisibility(View.GONE);
             mRlOrders.setVisibility(View.GONE);
 
         }
@@ -195,7 +212,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         tv_mobile_nav = findViewById(R.id.tv_mobile_nav);
         mrl_notifications = findViewById(R.id.rl_notifications);
         mRlProfileClick = findViewById(R.id.rl_profile_click);
-        mIvCart = findViewById(R.id.iv_cart);
+        iv_cart = findViewById(R.id.iv_cart);
+        iv_search = findViewById(R.id.iv_search);
         mSlider = findViewById(R.id.slider);
         mRvCategories = findViewById(R.id.rv_categories);
         rv_brands = findViewById(R.id.rv_brands);
@@ -206,7 +224,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         mTvMore1 = findViewById(R.id.tv_more1);
         mRvLike = findViewById(R.id.rv_like);
 
+
         mTvMobile = findViewById(R.id.tv_mobile);
+        tv_shareCode = findViewById(R.id.tv_shareCode);
+        badgeLayout = findViewById(R.id.badgeLayout);
+        badgeLayout.setOnClickListener(this);
 
         mRlHome = findViewById(R.id.rl_home);
         mRlProfile = findViewById(R.id.rl_profile);
@@ -241,91 +263,77 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         mRlOrders.setOnClickListener(this);
         mTvAbtUs.setOnClickListener(this);
         all_category.setOnClickListener(this);
-    }
-
-
-
-    void setLikes() {
-        imageModelYouTubeArrayList = arrayDailyQuiz();
-
-        //binding.rvLike.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,
-        //      true));
-        GridLayoutManager re = new GridLayoutManager(this, 2);
-        mRvLike.setLayoutManager(re);
-        // mRecyclerViewCourses.setLayoutManager(glm);
-        mRvLike.setItemAnimator(new DefaultItemAnimator());
-        mRvLike.setHasFixedSize(true);
-
-        homeLikeAdapter = new HomeLikeAdapter(this, imageModelYouTubeArrayList,
-                new HomeLikeAdapter.ItemClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-
-
-                    }
-                });
-        mRvLike.setAdapter(homeLikeAdapter);
+        //iv_cart.setOnClickListener(this);
+        iv_search.setOnClickListener(this);
+        tv_shareCode.setOnClickListener(this);
     }
 
     public void slider() {
 
-        SliderApi sliderApi = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(SliderApi.class);
+        if (Utilities.isNetworkAvailable(activity)) {
 
-        progressDialog.setMessage("Please Wait...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+            SliderApi sliderApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(SliderApi.class);
 
-        sliderApi.getSlider().enqueue(new Callback<SliderResponse>() {
+            progressDialog.setMessage("Please Wait...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-            @Override
-            public void onResponse(Call<SliderResponse> call, Response<SliderResponse> response) {
+            sliderApi.getSlider().enqueue(new Callback<SliderResponse>() {
 
-                SliderResponse sliderResponse = response.body();
-                sliderDetails = (sliderResponse).data;
-                Log.e("TAG", "onResponse: "+sliderResponse.toString()+" "+sliderDetails.toString() );
+                @Override
+                public void onResponse(Call<SliderResponse> call, Response<SliderResponse> response) {
 
-                if (sliderResponse.status == 200) {
-                    Toast.makeText(activity, "" + sliderResponse.message, Toast.LENGTH_SHORT).show();
+                    SliderResponse sliderResponse = response.body();
+                    sliderDetails = (sliderResponse).data;
+                    Log.e("TAG", "onResponse: " + sliderResponse.toString() + " " + sliderDetails.toString());
 
-                    for (SliderDetails name : sliderDetails) {
-                        TextSliderView textSliderView = new TextSliderView(activity);
-                        // initialize a SliderLayout
-                        textSliderView
-                                .description(name.sectionName)
-                                .image("http://api.eurekatalents.in/"+name.sliderImage)
-                                .setScaleType(BaseSliderView.ScaleType.Fit)
-                                .setOnSliderClickListener(HomeActivity.this::onSliderClick);
+                    if (sliderResponse.status == 200) {
+                        Toast.makeText(activity, "" + sliderResponse.message, Toast.LENGTH_SHORT).show();
 
-                        //add your extra information
-                        textSliderView.bundle(new Bundle());
-                        textSliderView.getBundle()
-                                .putString("extra", name.sliderImage);
+                        for (SliderDetails name : sliderDetails) {
+                            TextSliderView textSliderView = new TextSliderView(activity);
+                            // initialize a SliderLayout
+                            textSliderView
+                                    .description(name.sectionName)
+                                    .image(RetrofitClientInstance.BASE_URL_IMG + name.sliderImage)
+                                    .setScaleType(BaseSliderView.ScaleType.Fit)
+                                    .setOnSliderClickListener(HomeActivity.this::onSliderClick);
 
-                        mSlider.addSlider(textSliderView);
+                            //add your extra information
+                            textSliderView.bundle(new Bundle());
+                            textSliderView.getBundle()
+                                    .putString("extra", name.sliderImage);
+
+                            mSlider.addSlider(textSliderView);
+                        }
+                        mSlider.setPresetTransformer(SliderLayout.Transformer.Accordion);
+                        //  mSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+                        mSlider.setCustomAnimation(new DescriptionAnimation());
+                        mSlider.setDuration(4000);
+                        mSlider.addOnPageChangeListener(HomeActivity.this);
+
+                        Log.e("onResponse: ", " " + sliderResponse.message);
+                    } else {
+                        Toast.makeText(activity, "" + sliderResponse.message, Toast.LENGTH_SHORT).show();
+                        Log.e("onResponse: ", " " + sliderResponse.message);
                     }
-                    mSlider.setPresetTransformer(SliderLayout.Transformer.Accordion);
-                    //  mSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
-                    mSlider.setCustomAnimation(new DescriptionAnimation());
-                    mSlider.setDuration(4000);
-                    mSlider.addOnPageChangeListener(HomeActivity.this);
-
-                    Log.e("onResponse: ", " " + sliderResponse.message);
-                } else {
-                    Toast.makeText(activity, "" + sliderResponse.message, Toast.LENGTH_SHORT).show();
-                    Log.e("onResponse: ", " " + sliderResponse.message);
+                    progressDialog.dismiss();
                 }
-                progressDialog.dismiss();
-            }
 
-            @Override
-            public void onFailure(Call<SliderResponse> call, Throwable t) {
-                progressDialog.dismiss();
-                //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
-                Log.e("Slider errorchk", t.getMessage());
-            }
-        });
+                @Override
+                public void onFailure(Call<SliderResponse> call, Throwable t) {
+                    progressDialog.dismiss();
+                    //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
+                    Log.e("Slider errorchk", t.getMessage());
+                }
+            });
 
+        }else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+            //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.check_internet));
+
+        }
     }
 
     void setCategory( ArrayList<CategoryDetailsResponse> categoryResponsesnew)
@@ -352,36 +360,39 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private ArrayList<HomeModel> arrayDailyQuiz() {
-        ArrayList<HomeModel> list = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            HomeModel homeModel = new HomeModel();
-            homeModel.setName(myImageNameList[i]);
-            homeModel.setImage_drawable(myImageList[i]);
-            homeModel.setDesc(myCategory[i]);
-            homeModel.setRate(rate[i]);
-            homeModel.setAmount(amount[i]);
-            list.add(homeModel);
-        }
-        return list;
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
 
             case R.id.rl_cart:
                 mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
+                Bundle bundle = new Bundle();
+                bundle.putString("wishlistORcart","cart");
+                Utilities.launchActivity(activity, CartActivity.class,false,bundle);
+                break;
 
+            case R.id.rl_wishlist:
+                mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("wishlistORcart","wishlist");
+                Utilities.launchActivity(activity, CartActivity.class,false,bundle1);
                 break;
 
             case R.id.btn_openDrawer:
                 mDrlOpener.openDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
                 break;
 
+            case R.id.iv_search:
+                Utilities.launchActivity(activity, SearchActivity.class,false);
+                break;
+
+             case R.id.iv_cart:
+
+                break;
+
             case R.id.rl_category:
                 mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
-                Utilities.launchActivity(activity, AllCategoryActivity.class,false);
+                Utilities.launchActivity(activity, NewAllCategoryActivity.class,false);
                 break;
 
             case R.id.rl_home:
@@ -390,6 +401,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.rl_Orders:
                 mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
+
+                Utilities.launchActivity(activity, OrderHistoryActivity.class,false);
                 break;
 
             case R.id.rl_profile_click:
@@ -399,8 +412,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.rl_login:
                 mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
-                Intent i = new Intent(activity, LoginActivity.class);
-                startActivity(i);
+                Utilities.launchActivity(activity, LoginActivity.class,true);
                 break;
 
             case R.id.rl_reg:
@@ -408,13 +420,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 Utilities.launchActivity(activity, RegActivity.class,true);
                 break;
 
-             case R.id.all_category:
+            case R.id.all_category:
                 mDrlOpener.closeDrawer(Gravity.LEFT);
-                Utilities.launchActivity(activity, AllCategoryActivity.class,false);
-                break;
-
-            case R.id.rl_wishlist:
-                mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
+                Utilities.launchActivity(activity, NewAllCategoryActivity.class,false);
                 break;
 
             case R.id.rl_notifications:
@@ -431,7 +439,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 Utilities.launchActivity(activity, TACActivity.class, false);
                 break;
 
-                case R.id.tv_abtUs:
+            case R.id.tv_abtUs:
                 mDrlOpener.closeDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
                 Utilities.launchActivity(activity, TACActivity.class, false);
                 break;
@@ -441,12 +449,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 logoutDialog(v);
                 break;
 
-
-
-/*
-              case R.id.rl_profile:
-                mDrlOpener.openDrawer(Gravity.LEFT); //Edit Gravity.START need API 14
-            break;*/
+            case R.id.tv_shareCode:
+                String message = tv_shareCode.getText().toString();
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("text/plain");
+                share.putExtra(Intent.EXTRA_TEXT, message);
+                startActivity(Intent.createChooser(share, "Share Sponsor Code"));
+                break;
 
         }
     }
@@ -454,33 +463,16 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private void logoutDialog(View v) {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
         mBuilder.setTitle("Are you sure you want to exit?");
-       /* final View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.logout_dialog, null);
-        mBuilder.setView(dialogView);
-
-        Button btn_Cancel = dialogView.findViewById(R.id.btn_Cancel);
-        Button btn_ok = dialogView.findViewById(R.id.btn_ok);
-
-        mBuilder.setCancelable(false);
-
-        btn_Cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //dialogView.dismiss();
-            }
-        });
-
-        btn_ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sessionHelper.setLogin(false);
-            }
-        });*/
         mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+
                 sessionHelper.setLogin(false);
-                             dialog.dismiss();
-                             Utilities.launchActivity(activity, SplashActivity.class,true);
+                Utilities.saveUserData(activity, "userid", "");
+                Utilities.saveUserData(activity,"profilePic","");
+                Utilities.saveUserData(activity,"name","");
+                dialog.dismiss();
+                Utilities.launchActivity(activity, LoginActivity.class,true);
 
             }
         });
@@ -514,148 +506,164 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     void getCategory() {
 
-        CategoryApi categoryApi  = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(CategoryApi.class);
+        if (Utilities.isNetworkAvailable(activity)) {
+            CategoryApi categoryApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(CategoryApi.class);
 
-        categoryApi.getCategory().
-                enqueue(new Callback<CategoryResponse>() {
+            categoryApi.getCategory().
+                    enqueue(new Callback<CategoryResponse>() {
 
-                    @Override
-                    public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
+                        @Override
+                        public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
 
-                        CategoryResponse categoryResponse = response.body();
+                            CategoryResponse categoryResponse = response.body();
 
-                        if (categoryResponse.status == 200) {
-                            Log.e( "onResponse: ", categoryResponse.data.toString());
-                            setCategory(categoryResponse.data);
-                            //  Toast.makeText(activity, "" + aboutResponce.message, Toast.LENGTH_SHORT).show();
-                            // Log.e("aboutResponce: ", " " + aboutResponce.message);
+                            if (categoryResponse.status == 200) {
+                                Log.e("onResponse: ", categoryResponse.data.toString());
+                                setCategory(categoryResponse.data);
+                                //  Toast.makeText(activity, "" + aboutResponce.message, Toast.LENGTH_SHORT).show();
+                                // Log.e("aboutResponce: ", " " + aboutResponce.message);
 
 
-                        } else {
-                            Toast.makeText(activity, "" + categoryResponse.message, Toast.LENGTH_SHORT).show();
-                            Log.e("aboutResponce: ", " " + categoryResponse.message);
+                            } else {
+                                Toast.makeText(activity, "" + categoryResponse.message, Toast.LENGTH_SHORT).show();
+                                Log.e("aboutResponce: ", " " + categoryResponse.message);
+
+                            }
+
 
                         }
 
+                        @Override
+                        public void onFailure(Call<CategoryResponse> call, Throwable t) {
 
-                    }
+                            //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
+                            Log.d("errorchk", t.getMessage());
 
-                    @Override
-                    public void onFailure(Call<CategoryResponse> call, Throwable t) {
+                        }
+                    });
+        }else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+            //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.check_internet));
 
-                        //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
-                        Log.d("errorchk", t.getMessage());
-
-                    }
-                });
-
+        }
 
     }
 
     void getBrands() {
 
-        BrandsApi brandsApi  = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(BrandsApi.class);
+        if(Utilities.isNetworkAvailable(activity)){
+            BrandsApi brandsApi  = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(BrandsApi.class);
 
-        brandsApi.getBrands().
-                enqueue(new Callback<BrandResponse>() {
+            brandsApi.getBrands().
+                    enqueue(new Callback<BrandResponse>() {
 
-                    @Override
-                    public void onResponse(Call<BrandResponse> call, Response<BrandResponse> response) {
+                        @Override
+                        public void onResponse(Call<BrandResponse> call, Response<BrandResponse> response) {
 
-                        BrandResponse brandResponse = response.body();
-                        if (brandResponse !=null) {
-                            if (brandResponse.status == 200) {
-                                Log.e("onResponse: ", brandResponse.data.toString());
-                                setBrands(brandResponse.data);
+                            BrandResponse brandResponse = response.body();
+                            if (brandResponse !=null) {
+                                if (brandResponse.status == 200) {
+                                    Log.e("onResponse: ", brandResponse.data.toString());
+                                    setBrands(brandResponse.data);
 
-                            } else {
-                                Toast.makeText(activity, "" + brandResponse.message, Toast.LENGTH_SHORT).show();
-                                Log.e("aboutResponce: ", " " + brandResponse.message);
+                                } else {
+                                    Toast.makeText(activity, "" + brandResponse.message, Toast.LENGTH_SHORT).show();
+                                    Log.e("aboutResponce: ", " " + brandResponse.message);
 
+                                }
                             }
+
                         }
 
-                    }
+                        @Override
+                        public void onFailure(Call<BrandResponse> call, Throwable t) {
+                            Log.d("errorchkBr", t.getMessage());
+                        }
 
-                    @Override
-                    public void onFailure(Call<BrandResponse> call, Throwable t) {
-                        Log.d("errorchkBr", t.getMessage());
-                    }
+                    });
 
-                });
+        }else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+            //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.check_internet));
 
-
+        }
     }
 
     private void setBrands(ArrayList<BrandsDetailsResponse> data) {
 
-            Log.e("TAG", "setBrands: " );
-            brandResponses1 = data;
+        Log.e("TAG", "setBrands: " );
+        brandResponses1 = data;
 
-            //LinearLayoutManager glm = new LinearLayoutManager(getApplicationContext());
-            rv_brands.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL
-                    , false));
-            //binding.recyclerViewCourses.setLayoutManager(glm);
-            rv_brands.setItemAnimator(new DefaultItemAnimator());
-            rv_brands.setHasFixedSize(true);
+        //LinearLayoutManager glm = new LinearLayoutManager(getApplicationContext());
+        rv_brands.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL
+                , false));
+        //binding.recyclerViewCourses.setLayoutManager(glm);
+        rv_brands.setItemAnimator(new DefaultItemAnimator());
+        rv_brands.setHasFixedSize(true);
 
-            brandsAdapter = new BrandsAdapter(this, brandResponses1,
-                    new BrandsAdapter.ItemClickListener() {
-                        @Override
-                        public void onClick(View view, int position) {
+        brandsAdapter = new BrandsAdapter(this, brandResponses1,
+                new BrandsAdapter.ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
 
 
-                        }
-                    });
+                    }
+                });
         rv_brands.setAdapter(brandsAdapter);
 
     }
 
     void getProductGroups() {
 
-        ProductGroupsApi productGroupsApi  = RetrofitClientInstance.getRetrofitInstanceServer().
-                create(ProductGroupsApi.class);
+        if (Utilities.isNetworkAvailable(activity)) {
+            ProductGroupsApi productGroupsApi = RetrofitClientInstance.getRetrofitInstanceServer().
+                    create(ProductGroupsApi.class);
 
-        productGroupsApi.getproductGroups().
-                enqueue(new Callback<ProductGroupsResponse>() {
+            productGroupsApi.getproductGroups().
+                    enqueue(new Callback<ProductGroupsResponse>() {
 
-                    @Override
-                    public void onResponse(Call<ProductGroupsResponse> call, Response<ProductGroupsResponse> response) {
+                        @Override
+                        public void onResponse(Call<ProductGroupsResponse> call, Response<ProductGroupsResponse> response) {
 
-                        ProductGroupsResponse productGroupsResponse = response.body();
-                        if (productGroupsResponse !=null) {
-                            if (productGroupsResponse.status == 200) {
-                                Log.e("onResponse: ", productGroupsResponse.data.toString());
-                                setProductGroups(productGroupsResponse.data);
-                                //  Toast.makeText(activity, "" + aboutResponce.message, Toast.LENGTH_SHORT).show();
-                                Log.e("aboutResponce: ", " " + productGroupsResponse.toString());
+                            ProductGroupsResponse productGroupsResponse = response.body();
+
+                            //Log.e(TAG, "onResponseAAAAAA: "+productGroupsResponse.toString() );
+                            if (productGroupsResponse != null) {
 
 
-                            } else {
-                                Toast.makeText(activity, "" + productGroupsResponse.message, Toast.LENGTH_SHORT).show();
-                                Log.e("aboutResponce: ", " " + productGroupsResponse.message);
+                                if (productGroupsResponse.status == 200) {
+                                    Log.e("onResponse: ", productGroupsResponse.data.toString());
+                                    setProductGroups(productGroupsResponse.data);
+                                    //  Toast.makeText(activity, "" + aboutResponce.message, Toast.LENGTH_SHORT).show();
+                                    Log.e("aboutResponce: ", " " + productGroupsResponse.toString());
 
+
+                                } else {
+                                    Toast.makeText(activity, "" + productGroupsResponse.message, Toast.LENGTH_SHORT).show();
+                                    Log.e("aboutResponce: ", " " + productGroupsResponse.message);
+
+                                }
                             }
+
                         }
 
+                        @Override
+                        public void onFailure(Call<ProductGroupsResponse> call, Throwable t) {
 
-                    }
+                            //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
+                            Log.d("errorchk", t.getMessage());
 
-                    @Override
-                    public void onFailure(Call<ProductGroupsResponse> call, Throwable t) {
-
-                        //Utilities.setError(layout1,layout2,txt_error,getResources().getString(R.string.something_went_wrong));
-                        Log.d("errorchk", t.getMessage());
-
-                    }
-                });
+                        }
+                    });
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+        }
     }
 
     void setProductGroups(ArrayList<ProductGroupsDetailsResponse> productGroups)
     {
-        Log.e("TAG", "setProductGroups: " );
         productGroupsResponses = productGroups;
 
         //LinearLayoutManager glm = new LinearLayoutManager(getApplicationContext());

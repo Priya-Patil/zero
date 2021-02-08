@@ -130,6 +130,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.google.code.gson:gson:2.6.2'
+
+
+
     implementation 'org.jsoup:jsoup:1.11.2'
 
     //noinspection GradleCompatible
@@ -138,4 +141,6 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
 
+    //Notification Badges
+    implementation 'com.steelkiwi:badge-holder-view:1.1.0'
 }

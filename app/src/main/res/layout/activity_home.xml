@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     >-->
 
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drl_Opener"
     android:layout_height="match_parent">
 
@@ -59,14 +59,41 @@
 
 
                     <ImageView
-                        android:id="@+id/iv_cart"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_alignParentRight="true"
+                        android:id="@+id/iv_search"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_centerVertical="true"
                         android:layout_margin="10dp"
+                        android:layout_toLeftOf="@id/badgeLayout"
                         android:background="@drawable/ic_baseline_search_24"
                         android:backgroundTint="@color/white"/>
+
+
+                    <com.steelkiwi.library.view.BadgeHolderLayout
+                        android:layout_alignParentRight="true"
+                        android:id="@+id/badgeLayout"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_centerVertical="true"
+                        app:bhl_default_badge_background="@color/colorAccent"
+                        app:bhl_text_color="@android:color/white"
+                        app:bhl_text_size="12sp"
+                        app:bhl_badge_radius="10dp">
+
+                        <ImageView
+                            android:contentDescription="@string/cart"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginRight="16dp"
+                            android:id="@+id/iv_cart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/ic_baseline_shopping_cart_24"
+                            android:backgroundTint="@color/white"
+                            android:layout_marginEnd="16dp"
+                            android:layout_alignParentRight="true" />
+
+                    </com.steelkiwi.library.view.BadgeHolderLayout>
+
 
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
